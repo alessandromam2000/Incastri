@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+[hidden] { display: none !important; }
 /* Layout: campo a due metà (loro in alto, noi in basso) con la rete in mezzo; a destra pannelli di lettura rapida. */
 :root {
   --bg: #edf0f2;
@@ -490,15 +491,7 @@ button { cursor: pointer; }
     }).join("");
   }
 
-  function renderAll() {
-    /* blocca altezza e scroll durante il ridisegno, così la pagina non salta */
-    var de = document.documentElement, y = window.pageYOffset || de.scrollTop || 0;
-    var h = Math.max(de.scrollHeight, document.body.scrollHeight);
-    if (!document.body.style.minHeight) { document.body.style.minHeight = h + "px"; setTimeout(function () { document.body.style.minHeight = ""; }, 350); }
-    renderHead(); renderBoard(); renderPairs(); renderNexts(); renderSlip(); renderStart();
-    window.scrollTo(0, y);
-    requestAnimationFrame(function () { window.scrollTo(0, y); });
-  }
+  function renderAll() { renderHead(); renderBoard(); renderPairs(); renderNexts(); renderSlip(); renderStart(); }
 
   /* ---------- roster view ---------- */
   function clubOptions(sel) {
@@ -561,19 +554,6 @@ button { cursor: pointer; }
     document.getElementById("tab-roster").setAttribute("aria-pressed", String(t === "roster"));
     if (t === "play") renderAll();
   }
-
-  /* pagina ferma: prima dei gestori tolgo il focus dal pulsante (che verrebbe ridisegnato),
-     blocco l'altezza e dopo rimetto lo scroll dov'era */
-  document.addEventListener("click", function (e) {
-    if (!e.target.closest || !e.target.closest("button")) return;
-    var de = document.documentElement, y = window.pageYOffset || de.scrollTop || 0;
-    document.body.style.minHeight = Math.max(de.scrollHeight, document.body.scrollHeight) + "px";
-    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-    var back = function () { if ((window.pageYOffset || de.scrollTop || 0) !== y) window.scrollTo(0, y); };
-    requestAnimationFrame(back);
-    setTimeout(back, 60);
-    setTimeout(function () { back(); document.body.style.minHeight = ""; }, 350);
-  }, true);
 
   document.addEventListener("click", function (e) {
     var el = e.target.closest("button");
