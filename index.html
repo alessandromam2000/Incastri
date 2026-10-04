@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Incastri">
+<meta name="theme-color" content="#edf0f2">
+<title>Incastri di partenza</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: campo a due metà (loro in alto, noi in basso) con la rete in mezzo; a destra pannelli di lettura rapida. */
+:root {
+  --bg: #edf0f2;
+  --surface: #ffffff;
+  --ink: #14202b;
+  --muted: #566674;
+  --line: #cdd6dd;
+  --floor: #e6d6b4;
+  --us: #1d4f91;
+  --on-us: #ffffff;
+  --us-soft: #dbe7f6;
+  --them: #b93d0a;
+  --on-them: #ffffff;
+  --them-soft: #f9e0d2;
+  --font-display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10161c;
+    --surface: #1a232c;
+    --ink: #e8eef3;
+    --muted: #93a3b1;
+    --line: #2e3b47;
+    --floor: #2b261c;
+    --us: #6aa3e8;
+    --on-us: #0b1a2e;
+    --us-soft: #1f3550;
+    --them: #f08a5c;
+    --on-them: #2a1306;
+    --them-soft: #4a2a1c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10161c;
+  --surface: #1a232c;
+  --ink: #e8eef3;
+  --muted: #93a3b1;
+  --line: #2e3b47;
+  --floor: #2b261c;
+  --us: #6aa3e8;
+  --on-us: #0b1a2e;
+  --us-soft: #1f3550;
+  --them: #f08a5c;
+  --on-them: #2a1306;
+  --them-soft: #4a2a1c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.4;
+  padding-inline: 16px;
+  padding-block: 16px 32px;
+}
+.app { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* header */
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+.eyebrow { margin: 0; font-family: var(--font-display); font-size: 14px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.headline { margin: 2px 0 0; font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 5.2vw, 46px); line-height: 1.05; text-wrap: balance; }
+.headline .us { color: var(--us); }
+.headline .them { color: var(--them); }
+.headline .mid { color: var(--muted); font-weight: 500; }
+.tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--line); padding: 4px; border-radius: 8px; }
+.tab { border: 0; background: transparent; padding: 10px 18px; border-radius: 5px; font-family: var(--font-display); font-weight: 600; font-size: 18px; letter-spacing: .03em; min-height: 44px; }
+.tab[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+/* controls */
+.controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.ctl { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.ctl h2 { margin: 0; font-family: var(--font-display); font-size: 15px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.ctl h2 .note { letter-spacing: 0; text-transform: none; font-family: var(--font-body); font-size: 13px; font-weight: 500; }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
+.seg button { min-height: 48px; border: 1.5px solid var(--line); background: transparent; border-radius: 6px; font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: .02em; }
+.seg.us button[aria-pressed="true"] { background: var(--us); border-color: var(--us); color: var(--on-us); }
+.seg.them button[aria-pressed="true"] { background: var(--them); border-color: var(--them); color: var(--on-them); }
+.seg.serve button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.seg.serve button { font-size: 19px; }
+
+.hint { margin: 0; padding: 10px 14px; border: 1px dashed var(--line); border-radius: 8px; color: var(--muted); font-size: 14px; }
+.hint button { border: 0; background: none; padding: 0; text-decoration: underline; font-weight: 600; color: var(--ink); }
+
+/* layout */
+.play { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 860px) { .play { grid-template-columns: minmax(0, 1fr); } }
+.side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+/* court */
+.board { background: var(--floor); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.half { display: flex; flex-direction: column; gap: 8px; }
+.halfhead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; font-family: var(--font-display); font-weight: 600; font-size: 16px; letter-spacing: .08em; text-transform: uppercase; }
+.halfhead.us { color: var(--us); }
+.halfhead.them { color: var(--them); }
+.halfhead .sub { font-family: var(--font-body); text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--ink); font-size: 13px; }
+.row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.net { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 600; font-size: 13px; letter-spacing: .3em; color: var(--ink); }
+.net::before, .net::after { content: ""; flex: 1; height: 6px; background: repeating-linear-gradient(90deg, var(--ink) 0 8px, transparent 8px 12px); }
+
+.cell { appearance: none; text-align: left; display: flex; flex-direction: column; justify-content: space-between; gap: 4px; min-height: 100px; min-width: 0; padding: 8px 10px; background: var(--surface); color: var(--ink); border: 1.5px solid var(--line); border-radius: 6px; position: relative; }
+.cell .pos { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-family: var(--font-display); font-weight: 600; font-size: 14px; letter-spacing: .1em; color: var(--muted); }
+.cell .name { font-family: var(--font-display); font-weight: 700; font-size: clamp(19px, 3.2vw, 26px); line-height: 1.05; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cell .meta { font-size: 13px; color: var(--muted); }
+.cell.us { border-color: var(--us); }
+.cell.them { border-color: var(--them); }
+.cell.us.setter { background: var(--us); color: var(--on-us); }
+.cell.them.setter { background: var(--them); color: var(--on-them); }
+.cell.setter .pos, .cell.setter .meta { color: inherit; opacity: .85; }
+.badge { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; background: var(--ink); color: var(--bg); padding: 2px 6px; border-radius: 3px; }
+.cell.sel { outline: 3px solid var(--ink); outline-offset: 2px; }
+.cell.vs { outline: 3px dashed var(--ink); outline-offset: 2px; }
+.foot { margin: 0; font-size: 13px; color: var(--muted); }
+
+/* panels */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.panel h2 { margin: 0; font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: .02em; }
+.panel .lab { margin: 0; font-family: var(--font-display); font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.pairs { display: flex; flex-direction: column; gap: 6px; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; text-align: left; background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; min-height: 52px; }
+.pair.on { border-color: var(--ink); background: var(--bg); }
+.pair .p { display: flex; flex-direction: column; min-width: 0; }
+.pair .p.r { text-align: right; align-items: flex-end; }
+.pair .pn { font-family: var(--font-display); font-weight: 700; font-size: 19px; line-height: 1.1; overflow-wrap: anywhere; }
+.pair .pp { font-size: 12px; color: var(--muted); }
+.pair .p.l .pn { color: var(--us); }
+.pair .p.r .pn { color: var(--them); }
+.pair .x { font-family: var(--font-display); font-weight: 600; font-size: 14px; letter-spacing: .1em; color: var(--muted); }
+
+.slip { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 12px; align-items: baseline; margin: 0; padding: 0; list-style: none; }
+.slip li { display: contents; }
+.slip .rn { font-family: var(--font-display); font-weight: 700; font-size: 20px; color: var(--muted); min-width: 2.2em; }
+.slip .sn { font-family: var(--font-display); font-weight: 700; font-size: 20px; overflow-wrap: anywhere; }
+.slip .sm { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.nexts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 480px) { .nexts { grid-template-columns: minmax(0, 1fr); } }
+.next { text-align: left; background: transparent; border: 1.5px solid var(--line); border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; min-height: 92px; }
+.next strong { font-family: var(--font-display); font-size: 19px; letter-spacing: .02em; }
+.next.us strong { color: var(--us); }
+.next.them strong { color: var(--them); }
+.next span { font-size: 14px; }
+.undo { align-self: flex-start; background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 8px 14px; min-height: 44px; font-weight: 600; }
+.undo:disabled { opacity: .45; cursor: default; }
+
+/* dove devo partire */
+.start .goal { margin: 0; font-size: 15px; }
+.start .goal .us { color: var(--us); font-weight: 600; }
+.start .goal .them { color: var(--them); font-weight: 600; }
+.startrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.startrow .lab { font-family: var(--font-display); font-size: 15px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.startrow .seg { flex: 1 1 260px; max-width: 420px; }
+.results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 520px) { .results { grid-template-columns: minmax(0, 1fr); } }
+.res { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border: 1.5px solid var(--line); border-radius: 6px; }
+.res .when { font-size: 14px; color: var(--muted); }
+.res strong { font-family: var(--font-display); font-weight: 700; font-size: 38px; line-height: 1.05; color: var(--us); }
+.res .how { font-size: 13px; color: var(--muted); }
+
+/* roster */
+.rosters { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; }
+.rosters .intro { grid-column: 1 / -1; margin: 0; color: var(--muted); max-width: 70ch; }
+.rteam h2 { margin: 0 0 8px; font-family: var(--font-display); font-size: 24px; font-weight: 700; }
+.rteam.us h2 { color: var(--us); }
+.rteam.them h2 { color: var(--them); }
+/* Riga fissa: zona e ruolo, nome, maglia, menu Rosa. Il nome prende lo spazio che resta, nessuna colonna si sovrappone. */
+.rrow { display: grid; grid-template-columns: 44px minmax(0, 1fr) 56px; gap: 8px; align-items: center; padding-block: 4px; }
+.withpick .rrow { grid-template-columns: 44px minmax(0, 1fr) 56px 92px; }
+.rrow .bp { display: flex; flex-direction: column; line-height: 1.05; font-family: var(--font-display); }
+.rrow .bp b { font-weight: 700; font-size: 20px; }
+.rrow .bp i { font-style: normal; font-weight: 600; font-size: 13px; letter-spacing: .06em; color: var(--muted); }
+.rrow select, .rrow input, .clubbox select { width: 100%; min-width: 0; min-height: 46px; padding: 6px 8px; background: var(--surface); border: 1.5px solid var(--line); border-radius: 6px; }
+.rrow input.num { text-align: center; padding-inline: 4px; font-variant-numeric: tabular-nums; }
+.clubbox { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.clubbox label { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.rosters .intro.src { font-size: 13px; }
+.rosters .intro a { color: var(--ink); }
+@media (prefers-reduced-motion: no-preference) {
+  .cell, .pair, .seg button { transition: background-color .12s, border-color .12s; }
+}
+</style>
+</head>
+<body>
+
+
+<main class="app">
+  <header class="top">
+    <div>
+      <p class="eyebrow">Incastri di partenza</p>
+      <h1 class="headline" id="headline"></h1>
+    </div>
+    <div class="tabs" role="group" aria-label="Schermata">
+      <button class="tab" id="tab-play" data-tab="play" aria-pressed="true">Incastro</button>
+      <button class="tab" id="tab-roster" data-tab="roster" aria-pressed="false">Rose e nomi</button>
+    </div>
+  </header>
+
+  <section id="view-play" class="app" style="gap:16px">
+    <div class="controls">
+      <div class="ctl">
+        <h2>Chi batte</h2>
+        <div class="seg serve" id="seg-serve" role="group" aria-label="Chi batte"></div>
+      </div>
+      <div class="ctl">
+        <h2>Noi <span class="note" id="note-us"></span></h2>
+        <div class="seg us" id="seg-us" role="group" aria-label="Nostra rotazione"></div>
+      </div>
+      <div class="ctl">
+        <h2>Loro <span class="note" id="note-them"></span></h2>
+        <div class="seg them" id="seg-them" role="group" aria-label="Rotazione avversaria"></div>
+      </div>
+    </div>
+    <p class="hint" id="hint" hidden>Per ora vedi le sigle dei ruoli al posto dei nomi. <button type="button" data-tab="roster">Inserisci i nomi</button> e li ritrovi in ogni rotazione.</p>
+
+    <div class="play">
+      <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+        <div class="board" id="board"></div>
+        <p class="foot">Posizioni di rotazione al momento della battuta. Dopo il servizio i giocatori si spostano nei ruoli di attacco e muro. Tocca un giocatore per vedere chi ha di fronte.</p>
+      </div>
+      <div class="side">
+        <section class="panel" aria-labelledby="h-face">
+          <h2 id="h-face">Chi hai davanti</h2>
+          <div id="pairs"></div>
+        </section>
+        <section class="panel" aria-labelledby="h-next">
+          <h2 id="h-next">Dopo il punto</h2>
+          <div class="nexts" id="nexts"></div>
+          <button type="button" class="undo" id="undo">Annulla ultimo punto</button>
+        </section>
+        <section class="panel" aria-labelledby="h-slip">
+          <h2 id="h-slip">Modulo di formazione</h2>
+          <p class="lab" id="slip-lab"></p>
+          <ol class="slip" id="slip"></ol>
+        </section>
+      </div>
+    </div>
+
+    <section class="panel start" aria-labelledby="h-start">
+      <h2 id="h-start">Dove devo partire?</h2>
+      <p class="goal" id="start-goal"></p>
+      <div class="startrow">
+        <span class="lab">Loro partono in</span>
+        <div class="seg them" id="seg-start" role="group" aria-label="Rotazione di partenza avversaria"></div>
+      </div>
+      <div class="results" id="start-res"></div>
+    </section>
+  </section>
+
+  <section id="view-roster" hidden>
+    <div class="rosters" id="rosters"></div>
+  </section>
+</main>
+
+<script>
+(function () {
+  var CYC = [1, 6, 5, 4, 3, 2];
+  var FACE = { 1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 6: 6 };
+  var ROLES = { P: "Palleggiatrice", S1: "Banda vicina al palleggio", S2: "Banda lontana", C1: "Centrale vicino al palleggio", C2: "Centrale lontano", O: "Opposta" };
+  var SLOT_ROLES = ["S1", "S2", "C1", "C2", "O"];
+  var DEFAULT_ROLES = ["P", "S1", "C2", "O", "S2", "C1"];
+  var GROUP_OF = { P: "P", S1: "S", S2: "S", C1: "C", C2: "C", O: "O" };
+  var GROUP_NAMES = {
+    F: { P: "Palleggiatrici", S: "Schiacciatrici", C: "Centrali", O: "Opposte", L: "Libero" },
+    M: { P: "Palleggiatori", S: "Schiacciatori", C: "Centrali", O: "Opposti", L: "Libero" }
+  };
+  var CLUB_GROUPS = [
+    { g: "F", l: "A1", label: "Femminile · Serie A1" },
+    { g: "F", l: "A2", label: "Femminile · Serie A2" },
+    { g: "M", l: "A1", label: "Maschile · Serie A1" },
+    { g: "M", l: "A2", label: "Maschile · Serie A2" },
+    { g: "M", l: "A3", gir: "Bianco", label: "Maschile · Serie A3 · Girone Bianco" },
+    { g: "M", l: "A3", gir: "Blu", label: "Maschile · Serie A3 · Girone Blu" }
+  ];
+  var ROMAN = ["I", "II", "III", "IV", "V", "VI"];
+  var KEY = "incastri-di-partenza-v2";
+  var LEGA = /*LEGA*/{"updated":"4 ottobre 2026","clubs":[{"id":"banca-valsabbina-millenium-brescia","gender":"F","league":"A1","name":"Banca Valsabbina Millenium Brescia","players":[{"n":"3","f":"Rossella","l":"Olivotto","r":"C","label":"Olivotto"},{"n":"4","f":"Dalila","l":"Modestino","r":"C","label":"Modestino"},{"n":"5","f":"Andrea","l":"Mihaljevic","r":"O","label":"Mihaljevic"},{"n":"6","f":"Andjelka","l":"Novosel","r":"S","label":"Novosel"},{"n":"8","f":"Caterina","l":"Schillkowski","r":"P","label":"Schillkowski"},{"n":"9","f":"Valentina","l":"Bartolucci","r":"P","label":"Bartolucci"},{"n":"10","f":"Beatrice","l":"Parrocchiale","r":"L","label":"Parrocchiale"},{"n":"11","f":"Bozica","l":"Markovic","r":"C","label":"Markovic"},{"n":"12","f":"Rachele","l":"Nardelli","r":"S","label":"Nardelli"},{"n":"13","f":"Paola","l":"Ruggieri","r":"L","label":"Ruggieri"},{"n":"16","f":"Giorgia","l":"Amoruso","r":"S","label":"Amoruso"},{"n":"18","f":"Julia","l":"Kavalenka","r":"O","label":"Kavalenka"},{"n":"19","f":"Kalina","l":"Veneva","r":"S","label":"Veneva"},{"n":"23","f":"Oleksandra","l":"Bytsenko","r":"S","label":"Bytsenko"}]},{"id":"cbf-balducci-hr-macerata","gender":"F","league":"A1","name":"CBF Balducci HR Macerata","players":[{"n":"1","f":"Roberta","l":"Carraro","r":"P","label":"Carraro"},{"n":"5","f":"Chiara","l":"Landucci","r":"C","label":"Landucci"},{"n":"6","f":"Susan","l":"Schut","r":"S","label":"Schut"},{"n":"7","f":"Asia","l":"Bonelli","r":"P","label":"Bonelli"},{"n":"8","f":"Alessia","l":"Mazzon","r":"C","label":"Mazzon"},{"n":"9","f":"Nicole","l":"Piomboni","r":"S","label":"Piomboni"},{"n":"10","f":"Melissa","l":"Tesi","r":"L","label":"Tesi"},{"n":"11","f":"Bianca","l":"Farriol","r":"C","label":"Farriol"},{"n":"12","f":"Alessia","l":"Mazzaro","r":"C","label":"Mazzaro"},{"n":"14","f":"Giorgia","l":"Caforio","r":"L","label":"Caforio"},{"n":"16","f":"Beatrice","l":"Gardini","r":"S","label":"Gardini"},{"n":"17","f":"Clara","l":"Decortes","r":"O","label":"Decortes"},{"n":"20","f":"Mikaela","l":"Stoyanova","r":"O","label":"Stoyanova"}]},{"id":"cda-volley-talmassons-fvg","gender":"F","league":"A1","name":"CDA Volley Talmassons FVG","players":[{"n":"1","f":"Karin","l":"Barbazeni","r":"C","label":"Barbazeni"},{"n":"6","f":"Alessandra","l":"Mistretta","r":"L","label":"Mistretta"},{"n":"7","f":"Leonarda","l":"Grabic","r":"S","label":"Grabic"},{"n":"8","f":"Dana","l":"Schmit","r":"P","label":"Schmit"},{"n":"10","f":"Islam","l":"Gannar","r":"C","label":"Gannar"},{"n":"11","f":"Aurora","l":"Rossetto","r":"S","label":"Rossetto"},{"n":"12","f":"Beatrice","l":"Molinaro","r":"C","label":"Molinaro"},{"n":"13","f":"Efrosyni","l":"Bakodimou","r":"S","label":"Bakodimou"},{"n":"14","f":"Giorgia","l":"Frosini","r":"O","label":"Frosini"},{"n":"17","f":"Julie","l":"Lengweiler","r":"S","label":"Lengweiler"},{"n":"19","f":"Amelie","l":"Vighetto","r":"O","label":"Vighetto"},{"n":"20","f":"Francesca","l":"Scola","r":"P","label":"Scola"},{"n":"21","f":"Aurora","l":"Cassan","r":"L","label":"Cassan"},{"n":"25","f":"Liset","l":"Herrera Blanco","r":"C","label":"Herrera Blanco"}]},{"id":"choruslife-volley-bergamo","gender":"F","league":"A1","name":"ChorusLife Volley Bergamo","players":[{"n":"1","f":"Juliette","l":"Gelin","r":"L","label":"Gelin"},{"n":"2","f":"Silke","l":"Van Avermaet","r":"C","label":"Van Avermaet"},{"n":"3","f":"Maria Teresa","l":"Bassi","r":"S","label":"Bassi"},{"n":"4","f":"Lena","l":"Stigrot","r":"S","label":"Stigrot"},{"n":"5","f":"Kendall","l":"Kipp","r":"O","label":"Kipp"},{"n":"7","f":"Elena","l":"Pietrini","r":"S","label":"Pietrini"},{"n":"8","f":"Giada","l":"Agazzi","r":"C","label":"Agazzi"},{"n":"9","f":"Ilaria","l":"Battistoni","r":"P","label":"Battistoni"},{"n":"10","f":"Safa","l":"Allaoui","r":"P","label":"Allaoui"},{"n":"15","f":"Erika","l":"Esposito","r":"S","label":"Esposito"},{"n":"17","f":"Denise","l":"Meli","r":"C","label":"Meli"},{"n":"18","f":"Maria Adelaide","l":"Babatunde","r":"C","label":"Babatunde"},{"n":"21","f":"Anna","l":"Rocca","r":"L","label":"Rocca"},{"n":"55","f":"Federica","l":"Carletti","r":"S","label":"Carletti"}]},{"id":"granda-volley-cuneo","gender":"F","league":"A1","name":"Granda Volley Cuneo","players":[{"n":"1","f":"Ela","l":"Koulisiani","r":"C","label":"Koulisiani"},{"n":"2","f":"Carola","l":"Bonafede","r":"L","label":"Bonafede"},{"n":"3","f":"Ludovica","l":"Guidi","r":"C","label":"Guidi"},{"n":"4","f":"Anna","l":"Tikhomirova","r":"S","label":"Tikhomirova"},{"n":"7","f":"Sofia","l":"Ferrarini","r":"C","label":"Ferrarini"},{"n":"8","f":"Linda","l":"Magnani","r":"L","label":"Magnani"},{"n":"9","f":"Laura","l":"Pasquino","r":"P","label":"Pasquino"},{"n":"11","f":"Elena","l":"Baka","r":"S","label":"Baka"},{"n":"12","f":"Masa","l":"Pucelj","r":"S","label":"Pucelj"},{"n":"13","f":"Noemi","l":"Signorile","r":"P","label":"Signorile"},{"n":"17","f":"Bianca Gabriela","l":"Cucu","r":"S","label":"Cucu"},{"n":"18","f":"Lisiana","l":"Grafort","r":"O","label":"Grafort"},{"n":"21","f":"Francesca","l":"Mcbride","r":"O","label":"Mcbride"}]},{"id":"igor-gorgonzola-novara","gender":"F","league":"A1","name":"Igor Gorgonzola Novara","players":[{"n":"3","f":"Carlotta","l":"Cambi","r":"P","label":"Cambi"},{"n":"4","f":"Britt","l":"Herbots","r":"S","label":"Herbots"},{"n":"5","f":"Federica","l":"Squarcini","r":"C","label":"Squarcini"},{"n":"6","f":"Giulia","l":"De Nardi","r":"L","label":"De Nardi"},{"n":"7","f":"Emilia","l":"Weske","r":"O","label":"Weske"},{"n":"8","f":"Kaja","l":"Grobelna","r":"O","label":"Grobelna"},{"n":"9","f":"Lina","l":"Alsmeier","r":"S","label":"Alsmeier"},{"n":"10","f":"Ilenia","l":"Moro","r":"L","label":"Moro"},{"n":"11","f":"Benedetta","l":"Bartolini","r":"C","label":"Bartolini"},{"n":"13","f":"Sara","l":"Bonifacio","r":"C","label":"Bonifacio"},{"n":"14","f":"Giulia","l":"Carraro","r":"P","label":"Carraro"},{"n":"17","f":"Tatiana","l":"Tolok","r":"S","label":"Tolok"},{"n":"18","f":"Julia","l":"Gambatto Kudiess","r":"C","label":"Gambatto Kudiess"},{"n":"23","f":"Elena","l":"Perinelli","r":"S","label":"Perinelli"},{"n":"27","f":"Phoebe","l":"Awoleye","r":"C","label":"Awoleye"}]},{"id":"il-bisonte-firenze","gender":"F","league":"A1","name":"Il Bisonte Firenze","players":[{"n":"1","f":"Nausica","l":"Acciarri","r":"C","label":"Acciarri"},{"n":"3","f":"Aneta","l":"Zojzi","r":"S","label":"Zojzi"},{"n":"4","f":"Sofia","l":"Valoppi","r":"L","label":"Valoppi"},{"n":"8","f":"Bianca","l":"Cugno","r":"O","label":"Cugno"},{"n":"9","f":"Jennifer","l":"Boldini","r":"P","label":"Boldini"},{"n":"10","f":"Federica","l":"Piacentini","r":"C","label":"Piacentini"},{"n":"11","f":"Giulia","l":"Fanfani","r":"L","label":"Fanfani"},{"n":"13","f":"Nika","l":"Milosic","r":"C","label":"Milosic"},{"n":"14","f":"Alice","l":"Tanase","r":"S","label":"Tanase"},{"n":"16","f":"Sara","l":"Caruso","r":"C","label":"Caruso"},{"n":"19","f":"Beatrice","l":"Agrifoglio","r":"P","label":"Agrifoglio"},{"n":"22","f":"Caitlin","l":"Baird","r":"S","label":"Baird"},{"n":"23","f":"Viktoriia","l":"Lokhmanchuk","r":"O","label":"Lokhmanchuk"},{"n":"24","f":"Paulina","l":"Damaske","r":"S","label":"Damaske"}]},{"id":"laica-cioccolato-uyba","gender":"F","league":"A1","name":"Laica Cioccolato UYBA","players":[{"n":"1","f":"Valeria","l":"Battista","r":"S","label":"Battista"},{"n":"2","f":"Federica","l":"Pelloni","r":"L","label":"Pelloni"},{"n":"3","f":"Ajack Jhon Majak","l":"Malual","r":"O","label":"Malual"},{"n":"4","f":"Maia Carlotta","l":"Monaco","r":"C","label":"Monaco"},{"n":"5","f":"Nanami","l":"Seki","r":"P","label":"Seki"},{"n":"6","f":"Dalila","l":"Marchesini","r":"C","label":"Marchesini"},{"n":"10","f":"Francesca","l":"Parlangeli","r":"L","label":"Parlangeli"},{"n":"11","f":"Asia","l":"Spaziano","r":"P","label":"Spaziano"},{"n":"13","f":"Matilde","l":"Munarini","r":"C","label":"Munarini"},{"n":"18","f":"Alice","l":"Torcolacci","r":"C","label":"Torcolacci"},{"n":"19","f":"Leana","l":"Grozer","r":"S","label":"Grozer"},{"n":"20","f":"Miku","l":"Akimoto","r":"S","label":"Akimoto"},{"n":"21","f":"Yukiko","l":"Wada","r":"O","label":"Wada"},{"n":"23","f":"Melanie","l":"Parra","r":"S","label":"Parra"}]},{"id":"megabox-ond-savio-vallefoglia","gender":"F","league":"A1","name":"Megabox Ond. Savio Vallefoglia","players":[{"n":"1","f":"Erblira","l":"Bici","r":"O","label":"Bici"},{"n":"3","f":"Alessia","l":"Bolzonetti","r":"S","label":"Bolzonetti"},{"n":"4","f":"Tai Masyn","l":"Bierria","r":"S","label":"Bierria"},{"n":"5","f":"Sophie Andrea","l":"Blasi","r":"L","label":"Blasi"},{"n":"6","f":"Gaia","l":"Giovannini","r":"S","label":"Giovannini"},{"n":"7","f":"Chiara","l":"De Bortoli","r":"L","label":"De Bortoli"},{"n":"8","f":"Sonia","l":"Candi","r":"C","label":"Candi"},{"n":"9","f":"Alexandra","l":"Frantti","r":"S","label":"Frantti"},{"n":"10","f":"Ulrike","l":"Bridi","r":"P","label":"Bridi"},{"n":"11","f":"Elizaveta","l":"Kochurina","r":"C","label":"Kochurina"},{"n":"12","f":"Lucia","l":"Varela Gomez","r":"C","label":"Varela Gomez"},{"n":"13","f":"Lara","l":"Davidovic","r":"O","label":"Davidovic"},{"n":"14","f":"Jenna Camille","l":"Gray","r":"P","label":"Gray"},{"n":"21","f":"Loveth Oghosasere","l":"Omoruyi","r":"S","label":"Omoruyi"}]},{"id":"numia-vero-volley-milano","gender":"F","league":"A1","name":"Numia Vero Volley Milano","players":[{"n":"2","f":"Valeria","l":"Vazquez Gomez","r":"S","label":"Vazquez Gomez"},{"n":"4","f":"Francesca","l":"Bosio","r":"P","label":"Bosio"},{"n":"5","f":"Yoshino","l":"Sato","r":"S","label":"Sato"},{"n":"7","f":"Virginia Paola","l":"Di Napoli","r":"L","label":"Di Napoli"},{"n":"10","f":"Benedetta Maria","l":"Sartori","r":"C","label":"Sartori"},{"n":"11","f":"Anna","l":"Danesi","r":"C","label":"Danesi"},{"n":"13","f":"Aida","l":"Dautova","r":"C","label":"Dautova"},{"n":"14","f":"Hena","l":"Kurtagic","r":"C","label":"Kurtagic"},{"n":"16","f":"Khalia","l":"Lanier","r":"S","label":"Lanier"},{"n":"18","f":"Paola","l":"Egonu","r":"O","label":"Egonu"},{"n":"19","f":"Binto","l":"Diop","r":"O","label":"Diop"},{"n":"23","f":"Giulia","l":"Gennari","r":"P","label":"Gennari"},{"n":"25","f":"Rebecca","l":"Piva","r":"S","label":"Piva"},{"n":"80","f":"Eleonora","l":"Fersino","r":"L","label":"Fersino"}]},{"id":"omag-consolini-volley-1907","gender":"F","league":"A1","name":"OMAG Consolini Volley 1907","players":[{"n":"2","f":"Martina","l":"Bracchi","r":"S","label":"Bracchi"},{"n":"3","f":"Amandha","l":"Sylves","r":"C","label":"Sylves"},{"n":"4","f":"Jessica","l":"Rivero","r":"S","label":"Rivero"},{"n":"7","f":"Rebecca","l":"Scialanca","r":"L","label":"Scialanca"},{"n":"9","f":"Anna","l":"Adelusi","r":"O","label":"Adelusi"},{"n":"10","f":"Dalia","l":"Wilson","r":"C","label":"Wilson"},{"n":"11","f":"Anita","l":"Bagnoli","r":"P","label":"Bagnoli"},{"n":"13","f":"Sara","l":"Panetoni","r":"L","label":"Panetoni"},{"n":"14","f":"Pelin","l":"Eroktay","r":"O","label":"Eroktay"},{"n":"15","f":"Magdalena","l":"Jehlarova","r":"C","label":"Jehlarova"},{"n":"17","f":"Alice","l":"Nardo","r":"S","label":"Nardo"},{"n":"18","f":"Veronica","l":"Costantini","r":"C","label":"Costantini"},{"n":"19","f":"Margherita","l":"Brandi","r":"C","label":"Brandi"},{"n":"23","f":"Dominika","l":"Giuliani","r":"S","label":"Giuliani"},{"n":"24","f":"Rachele","l":"Morello","r":"P","label":"Morello"}]},{"id":"prosecco-doc-a-carraro-imoco-conegliano","gender":"F","league":"A1","name":"Prosecco Doc A.Carraro Imoco Conegliano","players":[{"n":"1","f":"Gabriela","l":"Braga Guimaraes","r":"S","label":"Braga Guimaraes"},{"n":"4","f":"Ting","l":"Zhu","r":"S","label":"Zhu"},{"n":"5","f":"Linda","l":"Manfredini","r":"C","label":"Manfredini"},{"n":"7","f":"Raphaela","l":"Folie","r":"C","label":"Folie"},{"n":"8","f":"Anna","l":"Piovesan","r":"S","label":"Piovesan"},{"n":"10","f":"Monica","l":"De Gennaro","r":"L","label":"De Gennaro"},{"n":"11","f":"Isabelle","l":"Haak","r":"O","label":"Haak"},{"n":"12","f":"Di","l":"Yao","r":"P","label":"Yao"},{"n":"13","f":"Elena","l":"Arici","r":"L","label":"Arici"},{"n":"14","f":"Joanna","l":"Wolosz","r":"P","label":"Wolosz"},{"n":"15","f":"Merit Chinenyenwa","l":"Adigwe","r":"O","label":"Adigwe"},{"n":"16","f":"Anastasia","l":"Cekulaev","r":"C","label":"Cekulaev"},{"n":"19","f":"Sarah","l":"Fahr","r":"C","label":"Fahr"},{"n":"23","f":"Fatoumatta","l":"Sillah","r":"S","label":"Sillah"}]},{"id":"reale-mutua-fenera-chieri-76","gender":"F","league":"A1","name":"Reale Mutua Fenera Chieri '76","players":[{"n":"3","f":"Alessia","l":"Regoni","r":"L","label":"Regoni"},{"n":"5","f":"Ilaria","l":"Spirito","r":"L","label":"Spirito"},{"n":"6","f":"Reagan","l":"Cooper","r":"S","label":"Cooper"},{"n":"7","f":"Katja","l":"Eckl","r":"C","label":"Eckl"},{"n":"8","f":"Britte","l":"Stuut","r":"C","label":"Stuut"},{"n":"9","f":"Marina","l":"Lubian","r":"C","label":"Lubian"},{"n":"10","f":"Sarah","l":"Van Aalen","r":"P","label":"Van Aalen"},{"n":"11","f":"Stella","l":"Nervini","r":"S","label":"Nervini"},{"n":"12","f":"Marina","l":"Giacomello","r":"O","label":"Giacomello"},{"n":"13","f":"Anett","l":"Németh","r":"O","label":"Németh"},{"n":"15","f":"Corina","l":"Glaab","r":"P","label":"Glaab"},{"n":"17","f":"Anna","l":"Gray","r":"C","label":"Gray"},{"n":"18","f":"Yasmina","l":"Akrari","r":"C","label":"Akrari"},{"n":"21","f":"Abagayle Elizabeth Kathryn","l":"Guezen","r":"S","label":"Guezen"},{"n":"33","f":"Logan","l":"Eggleston","r":"S","label":"Eggleston"}]},{"id":"savino-del-bene-scandicci","gender":"F","league":"A1","name":"Savino Del Bene Scandicci","players":[{"n":"2","f":"Chidera Blessing","l":"Eze","r":"P","label":"Eze"},{"n":"3","f":"Kiera","l":"Van Ryk","r":"O","label":"Van Ryk"},{"n":"4","f":"Avery","l":"Skinner","r":"S","label":"Skinner"},{"n":"5","f":"Imma","l":"Sirressi","r":"L","label":"Sirressi"},{"n":"6","f":"Sofia","l":"D'Odorico","r":"S","label":"D'Odorico"},{"n":"7","f":"Lise","l":"Van Hecke","r":"O","label":"Van Hecke"},{"n":"8","f":"Maja","l":"Aleksic","r":"C","label":"Aleksic"},{"n":"9","f":"Caterina","l":"Bosetti","r":"S","label":"Bosetti"},{"n":"10","f":"Maja","l":"Ognjenovic","r":"P","label":"Ognjenovic"},{"n":"11","f":"Martina","l":"Armini","r":"L","label":"Armini"},{"n":"13","f":"Emma","l":"Graziani","r":"C","label":"Graziani"},{"n":"14","f":"Linda","l":"Nwakalor","r":"C","label":"Nwakalor"},{"n":"17","f":"Julia Isabelle","l":"Bergmann","r":"S","label":"Bergmann"},{"n":"22","f":"Sara","l":"Alberti","r":"C","label":"Alberti"}]},{"id":"bartoccini-energia-perugia","gender":"F","league":"A2","name":"Bartoccini +energia Perugia","players":[{"n":"2","f":"Sofia","l":"Biagianti","r":"O","label":"Biagianti"},{"n":"3","f":"Carolina","l":"Martinelli","r":"S","label":"Martinelli"},{"n":"4","f":"Cecilia","l":"Nicolini","r":"P","label":"Nicolini"},{"n":"5","f":"Francesca","l":"Michieletto","r":"S","label":"Michieletto"},{"n":"7","f":"Claudia","l":"Consoli","r":"C","label":"Consoli"},{"n":"8","f":"Valentina","l":"Colombo","r":"C","label":"Colombo"},{"n":"10","f":"Stefania","l":"Recchia","r":"L","label":"Recchia"},{"n":"11","f":"Giulia","l":"Mancini","r":"C","label":"Mancini"},{"n":"14","f":"Alessia","l":"Fiesoli","r":"S","label":"Fiesoli"},{"n":"16","f":"Lena","l":"Grosse Scharmann","r":"O","label":"Grosse Scharmann"},{"n":"17","f":"Natasza","l":"Ornoch","r":"S","label":"Ornoch"},{"n":"20","f":"Aurora","l":"Brambilla","r":"L","label":"Brambilla"},{"n":"21","f":"Giovanna","l":"Fratangelo","r":"P","label":"Fratangelo"}]},{"id":"c-b-l-costa-volpino","gender":"F","league":"A2","name":"C.B.L. Costa Volpino","players":[{"n":"2","f":"Puck","l":"Hoogers","r":"S","label":"Hoogers"},{"n":"3","f":"Nicole","l":"Gamba","r":"L","label":"Gamba"},{"n":"4","f":"Marika","l":"Longobardi","r":"S","label":"Longobardi"},{"n":"5","f":"Francesca","l":"Dell'Orto","r":"P","label":"Dell'Orto"},{"n":"6","f":"Giulia","l":"Nonato","r":"P","label":"Nonato"},{"n":"7","f":"Nicole","l":"Busetti","r":"L","label":"Busetti"},{"n":"8","f":"Carolina","l":"Fumagalli","r":"S","label":"Fumagalli"},{"n":"9","f":"Giulia","l":"Viscioni","r":"S","label":"Viscioni"},{"n":"10","f":"Alessandra","l":"Talarico","r":"C","label":"Talarico"},{"n":"11","f":"Valeria","l":"Pizzolato","r":"C","label":"Pizzolato"},{"n":"13","f":"Arianna","l":"Populini","r":"O","label":"Populini"},{"n":"14","f":"Fatim Yassimina","l":"Kone","r":"C","label":"Kone"},{"n":"17","f":"Monika","l":"Krasteva","r":"O","label":"Krasteva"}]},{"id":"caldaie-melgari-vbc-cremonese","gender":"F","league":"A2","name":"Caldaie Melgari VBC Cremonese","players":[{"n":"1","f":"Ludovica","l":"Franzoso","r":"L","label":"Franzoso"},{"n":"3","f":"Alessia","l":"Populini","r":"S","label":"Populini"},{"n":"4","f":"Natasha","l":"Calkins","r":"O","label":"Calkins"},{"n":"5","f":"Layla","l":"Viti","r":"S","label":"Viti"},{"n":"6","f":"Irene","l":"Mescoli","r":"S","label":"Mescoli"},{"n":"7","f":"Ilaria","l":"Menon","r":"C","label":"Menon"},{"n":"8","f":"Alice","l":"Bernardeschi","r":"P","label":"Bernardeschi"},{"n":"9","f":"Arianna","l":"Gambini","r":"L","label":"Gambini"},{"n":"10","f":"Chiara","l":"Muzi","r":"O","label":"Muzi"},{"n":"11","f":"Vittoria","l":"Prandi","r":"P","label":"Prandi"},{"n":"13","f":"Sara","l":"Tajè","r":"C","label":"Tajè"},{"n":"17","f":"Sara","l":"Loda","r":"S","label":"Loda"},{"n":"18","f":"Betsy Amarachukwu","l":"Nwokoye","r":"C","label":"Nwokoye"},{"n":"19","f":"Miranda","l":"Zanella","r":"C","label":"Zanella"}]},{"id":"clai-imola-volley","gender":"F","league":"A2","name":"Clai Imola Volley","players":[{"n":"1","f":"Serena","l":"Ortolani","r":"O","label":"Ortolani"},{"n":"2","f":"Bianca","l":"Orlandi","r":"S","label":"Orlandi"},{"n":"3","f":"Sveva","l":"Mugnaini","r":"O","label":"Mugnaini"},{"n":"4","f":"Alessandra","l":"Colzi","r":"C","label":"Colzi"},{"n":"5","f":"Sofia","l":"Cavalli","r":"P","label":"Cavalli"},{"n":"6","f":"Chiara","l":"Adorni","r":"L","label":"Adorni"},{"n":"7","f":"Ada","l":"Fabbri","r":"C","label":"Fabbri"},{"n":"8","f":"Sofia","l":"Taiani","r":"S","label":"Taiani"},{"n":"9","f":"Lisa","l":"Esposito","r":"S","label":"Esposito"},{"n":"10","f":"Agata","l":"Tellone","r":"L","label":"Tellone"},{"n":"11","f":"Asja","l":"Zolota","r":"S","label":"Zolota"},{"n":"13","f":"Chiara","l":"Bergese","r":"C","label":"Bergese"},{"n":"17","f":"Elena","l":"Foresi","r":"P","label":"Foresi"}]},{"id":"club-italia","gender":"F","league":"A2","name":"Club Italia","players":[{"n":"1","f":"Sofia","l":"Giuli'","r":"L","label":"Giuli'"},{"n":"2","f":"Alexandra Nikolaeva","l":"Baleva","r":"O","label":"Baleva"},{"n":"3","f":"Stella","l":"Caruso","r":"S","label":"Caruso"},{"n":"5","f":"Andrea Carlotta","l":"Monetti","r":"P","label":"Monetti"},{"n":"6","f":"Maria","l":"Solovei","r":"O","label":"Solovei"},{"n":"8","f":"Vanessa","l":"Hernandez Suarez","r":"P","label":"Hernandez Suarez"},{"n":"9","f":"Giulia","l":"Voerzio","r":"S","label":"Voerzio"},{"n":"10","f":"Ludovica","l":"Tosini","r":"S","label":"Tosini"},{"n":"11","f":"Giulia","l":"Savioli","r":"C","label":"Savioli"},{"n":"14","f":"Giulia","l":"Faleschini","r":"S","label":"Faleschini"},{"n":"15","f":"Alice","l":"Guerra","r":"C","label":"Guerra"},{"n":"16","f":"Stella","l":"Cornelli","r":"L","label":"Cornelli"},{"n":"17","f":"Ginevra","l":"Neri","r":"C","label":"Neri"},{"n":"18","f":"Letizia","l":"Feriozzi","r":"C","label":"Feriozzi"}]},{"id":"cosedil-f3-motors-akademia-messina","gender":"F","league":"A2","name":"Cosedil F3 Motors Akademia Messina","players":[{"n":"2","f":"Sofia","l":"Gazzola","r":"L","label":"Gazzola"},{"n":"4","f":"Caterina","l":"Peroni","r":"S","label":"Peroni"},{"n":"7","f":"Saana","l":"Lindgren","r":"O","label":"Lindgren"},{"n":"9","f":"Veronica","l":"Quero","r":"C","label":"Quero"},{"n":"10","f":"Sara","l":"Bellia","r":"S","label":"Bellia"},{"n":"13","f":"Payton","l":"Henderson","r":"S","label":"Henderson"},{"n":"14","f":"Elena","l":"Rolando","r":"L","label":"Rolando"},{"n":"15","f":"Martina","l":"Pegoraro","r":"C","label":"Pegoraro"},{"n":"16","f":"Elisabeth","l":"Caruso","r":"S","label":"Caruso"},{"n":"17","f":"Laura","l":"Franceschini","r":"C","label":"Franceschini"},{"n":"19","f":"Sara","l":"Colombano","r":"P","label":"Colombano"},{"n":"22","f":"Gaia","l":"Guiducci","r":"P","label":"Guiducci"}]},{"id":"erreci-busto-arsizio","gender":"F","league":"A2","name":"Erreci Busto Arsizio","players":[{"n":"1","f":"Mija","l":"Siftar","r":"S","label":"Siftar"},{"n":"2","f":"Francesca","l":"Cosi","r":"C","label":"Cosi"},{"n":"3","f":"Giada","l":"Di Mario","r":"L","label":"Di Mario"},{"n":"4","f":"Emili","l":"Ndoci","r":"S","label":"Ndoci"},{"n":"5","f":"Serena","l":"Scognamillo","r":"L","label":"Scognamillo"},{"n":"6","f":"Edinara","l":"Brancher","r":"O","label":"Brancher"},{"n":"7","f":"Gaia","l":"Moroni","r":"O","label":"G. Moroni"},{"n":"8","f":"Giulia","l":"Marconato","r":"C","label":"Marconato"},{"n":"9","f":"Helena","l":"Sassolini","r":"P","label":"Sassolini"},{"n":"10","f":"Brunella","l":"Fusco","r":"S","label":"Fusco"},{"n":"11","f":"Natasha","l":"Spinello","r":"P","label":"Spinello"},{"n":"14","f":"Sofia","l":"Moroni","r":"C","label":"S. Moroni"},{"n":"18","f":"Emma","l":"Cagnin","r":"S","label":"Cagnin"}]},{"id":"ferraro-smi-roma-volley","gender":"F","league":"A2","name":"Ferraro SMI Roma Volley","players":[{"n":"1","f":"Nikoleta","l":"Perovic","r":"S","label":"Perovic"},{"n":"2","f":"Sofia","l":"Turlà","r":"P","label":"Turlà"},{"n":"3","f":"Giulia","l":"Polesello","r":"C","label":"Polesello"},{"n":"5","f":"Teresa Maria","l":"Bosso","r":"S","label":"Bosso"},{"n":"7","f":"Carolina","l":"Pecorari","r":"S","label":"Pecorari"},{"n":"8","f":"Chiara","l":"Biesso","r":"C","label":"Biesso"},{"n":"9","f":"Margherita","l":"Muzi","r":"P","label":"Muzi"},{"n":"10","f":"Melissa","l":"Martinelli","r":"C","label":"Martinelli"},{"n":"11","f":"Federica","l":"Baratella","r":"L","label":"Baratella"},{"n":"14","f":"Giorgia","l":"Zannoni","r":"L","label":"Zannoni"},{"n":"17","f":"Ana","l":"Escamilla","r":"S","label":"Escamilla"},{"n":"27","f":"Kata","l":"Torok","r":"S","label":"Torok"}]},{"id":"itas-trentino","gender":"F","league":"A2","name":"Itas Trentino","players":[{"n":"1","f":"Virginia","l":"Ristori Tomberli","r":"S","label":"Ristori Tomberli"},{"n":"2","f":"Emma","l":"Rizzieri","r":"P","label":"Rizzieri"},{"n":"3","f":"Sofia","l":"Luchi","r":"L","label":"Luchi"},{"n":"4","f":"Polona","l":"Frelih","r":"O","label":"Frelih"},{"n":"5","f":"Sofia","l":"Monza","r":"P","label":"Monza"},{"n":"7","f":"Ludovica","l":"Sismondi","r":"C","label":"Sismondi"},{"n":"8","f":"Emma","l":"Galbero","r":"S","label":"Galbero"},{"n":"9","f":"Rebecca","l":"Laporta","r":"L","label":"Laporta"},{"n":"10","f":"Alice","l":"Pamio","r":"S","label":"Pamio"},{"n":"11","f":"Arianna","l":"Bovolenta","r":"C","label":"Bovolenta"},{"n":"13","f":"Martina","l":"Susio","r":"S","label":"Susio"},{"n":"15","f":"Emily Cheyenne","l":"Colombo","r":"S","label":"Colombo"},{"n":"16","f":"Greta","l":"Iob","r":"C","label":"Iob"}]},{"id":"narconon-volley-melendugno","gender":"F","league":"A2","name":"Narconon Volley Melendugno","players":[{"n":"2","f":"Giorgia","l":"Compagnin","r":"P","label":"Compagnin"},{"n":"4","f":"Giorgia","l":"Avenia","r":"P","label":"Avenia"},{"n":"5","f":"Margherita","l":"Meoni","r":"O","label":"Meoni"},{"n":"6","f":"Aurora","l":"Micheletti","r":"C","label":"Micheletti"},{"n":"7","f":"Aurora","l":"Morandini","r":"L","label":"Morandini"},{"n":"9","f":"Polina","l":"Malik","r":"O","label":"Malik"},{"n":"10","f":"Gaia","l":"Novello","r":"S","label":"Novello"},{"n":"11","f":"Perla","l":"Massaglia","r":"S","label":"Massaglia"},{"n":"12","f":"Beatrice","l":"Perfetto","r":"S","label":"Perfetto"},{"n":"14","f":"Gaia","l":"Roserba","r":"L","label":"Roserba"},{"n":"17","f":"Arianna","l":"Tomasetig","r":"S","label":"Tomasetig"},{"n":"18","f":"Lara","l":"Gianfico","r":"C","label":"Gianfico"},{"n":"22","f":"Natalia","l":"Lijewska","r":"S","label":"Lijewska"}]},{"id":"nuvoli-altafratte-padova","gender":"F","league":"A2","name":"Nuvolì Altafratte Padova","players":[{"n":"1","f":"Laura","l":"Bovo","r":"C","label":"Bovo"},{"n":"2","f":"Giulia","l":"Bozzoli","r":"S","label":"Bozzoli"},{"n":"3","f":"Cristina","l":"Fiorio","r":"S","label":"Fiorio"},{"n":"4","f":"Gaia","l":"Genovese","r":"C","label":"Genovese"},{"n":"5","f":"Celeste","l":"Sposetti Perissinotto","r":"L","label":"Sposetti Perissinotto"},{"n":"8","f":"Marianna","l":"Maggipinto","r":"L","label":"Maggipinto"},{"n":"9","f":"Greta","l":"Catania","r":"C","label":"Catania"},{"n":"10","f":"Rebecca","l":"Mirarchi","r":"P","label":"Mirarchi"},{"n":"11","f":"Chiara","l":"Mason","r":"S","label":"Mason"},{"n":"12","f":"Giulia","l":"Angelina","r":"S","label":"Angelina"},{"n":"15","f":"Genevieve","l":"Lewis","r":"O","label":"Lewis"},{"n":"16","f":"Martina","l":"Stocco","r":"P","label":"Stocco"},{"n":"18","f":"Giorgia","l":"Mazzon","r":"O","label":"Mazzon"}]},{"id":"olio-pantaleo-volley-fasano","gender":"F","league":"A2","name":"Olio Pantaleo Volley Fasano","players":[{"n":"1","f":"Beatrice","l":"Pozzoni","r":"S","label":"Pozzoni"},{"n":"4","f":"Isabella","l":"Lavagnino","r":"C","label":"Lavagnino"},{"n":"5","f":"Candela Sol","l":"Salinas","r":"S","label":"Salinas"},{"n":"6","f":"Chiara","l":"Salvatori","r":"C","label":"Salvatori"},{"n":"8","f":"Alice","l":"Turco","r":"P","label":"Turco"},{"n":"9","f":"Martina","l":"Bondavalli","r":"L","label":"Bondavalli"},{"n":"10","f":"Nicole","l":"Da Pos","r":"P","label":"Da Pos"},{"n":"12","f":"Piia","l":"Korhonen","r":"O","label":"Korhonen"},{"n":"15","f":"Ilaria","l":"Maiorano","r":"S","label":"Maiorano"},{"n":"17","f":"Anna","l":"Caneva","r":"C","label":"Caneva"},{"n":"18","f":"Federica","l":"Vittorio","r":"L","label":"Vittorio"},{"n":"19","f":"Katarina","l":"Bulovic","r":"S","label":"Bulovic"},{"n":"24","f":"Federica","l":"Favaretto","r":"O","label":"Favaretto"}]},{"id":"panbisco-leonessa-altamura","gender":"F","league":"A2","name":"Panbiscò Leonessa Altamura","players":[{"n":"1","f":"Emanuela","l":"Agbortabi","r":"C","label":"Agbortabi"},{"n":"2","f":"Giulia","l":"Biagini","r":"L","label":"Biagini"},{"n":"3","f":"Francesca Matilde","l":"Evola","r":"C","label":"Evola"},{"n":"6","f":"Alice","l":"Cacciatore","r":"S","label":"Cacciatore"},{"n":"7","f":"Lea Andrea","l":"Orlandi","r":"C","label":"Orlandi"},{"n":"9","f":"Noemi","l":"D'Onofrio","r":"L","label":"D'Onofrio"},{"n":"10","f":"Eva","l":"Svobodova","r":"S","label":"Svobodova"},{"n":"11","f":"Alessia","l":"Pulliero","r":"C","label":"Pulliero"},{"n":"12","f":"Alessia","l":"Arciprete","r":"S","label":"Arciprete"},{"n":"13","f":"Nicole","l":"Mastrangelo","r":"S","label":"Mastrangelo"},{"n":"14","f":"Valeria","l":"Caracuta","r":"P","label":"Caracuta"},{"n":"17","f":"Ester","l":"Serafini","r":"P","label":"Serafini"},{"n":"18","f":"Ashley","l":"Adubea","r":"O","label":"Adubea"},{"n":"99","f":"Dezirett","l":"Madan Rosales","r":"O","label":"Madan Rosales"}]},{"id":"sigel-seap-marsala-volley","gender":"F","league":"A2","name":"Sigel Seap Marsala Volley","players":[{"n":"2","f":"Giulia","l":"Caserta","r":"C","label":"Caserta"},{"n":"3","f":"Nelly","l":"Adamczewska","r":"S","label":"Adamczewska"},{"n":"4","f":"Veronica","l":"Allasia","r":"P","label":"Allasia"},{"n":"5","f":"Anya","l":"Asonja","r":"O","label":"Asonja"},{"n":"7","f":"Sara","l":"Dodi","r":"S","label":"Dodi"},{"n":"8","f":"Erin","l":"Grippo","r":"P","label":"Grippo"},{"n":"9","f":"Gaia","l":"Biondi","r":"C","label":"Biondi"},{"n":"11","f":"Federica","l":"Nonnati","r":"O","label":"Nonnati"},{"n":"12","f":"Luna","l":"Cicola","r":"L","label":"Cicola"},{"n":"14","f":"Victoria","l":"Sassolini","r":"S","label":"Sassolini"},{"n":"22","f":"Chiara","l":"Lo dico","r":"L","label":"Lo dico"},{"n":"24","f":"Maria","l":"Marcuzzi","r":"C","label":"Marcuzzi"},{"n":"26","f":"Elisa","l":"Bole","r":"S","label":"Bole"}]},{"id":"tenaglia-altino-avastese-volley","gender":"F","league":"A2","name":"Tenaglia Altino Avastese Volley","players":[{"n":"2","f":"Claudia","l":"Provaroni","r":"S","label":"Provaroni"},{"n":"3","f":"Ilaria","l":"Maiezza","r":"L","label":"Maiezza"},{"n":"4","f":"Sara","l":"Mori","r":"C","label":"Mori"},{"n":"6","f":"Amelie Joyce","l":"Pixner","r":"C","label":"Pixner"},{"n":"7","f":"Martina","l":"Ferrara","r":"L","label":"Ferrara"},{"n":"8","f":"Camilla","l":"Lupoli","r":"P","label":"Lupoli"},{"n":"9","f":"Florencia","l":"Ferraro","r":"P","label":"Ferraro"},{"n":"10","f":"Sara","l":"Stival","r":"O","label":"Stival"},{"n":"11","f":"Adji Astou","l":"Ndoye","r":"S","label":"Ndoye"},{"n":"12","f":"Gaia","l":"Riva","r":"S","label":"Riva"},{"n":"13","f":"Gaia","l":"Farelli","r":"S","label":"Farelli"},{"n":"22","f":"Viola","l":"Tonello","r":"C","label":"Tonello"},{"n":"23","f":"Giorgia","l":"Bernasconi","r":"C","label":"Bernasconi"},{"n":"29","f":"Valentina","l":"Omonoyan","r":"O","label":"Omonoyan"}]},{"id":"trasporti-bressan-offanengo","gender":"F","league":"A2","name":"Trasporti Bressan Offanengo","players":[{"n":"1","f":"Veronica","l":"Taborelli","r":"O","label":"Taborelli"},{"n":"2","f":"Sara","l":"Cakovic","r":"P","label":"Cakovic"},{"n":"4","f":"Chiara","l":"Costagli","r":"S","label":"Costagli"},{"n":"5","f":"Camilla","l":"Riccardi","r":"L","label":"Riccardi"},{"n":"6","f":"Arianna","l":"Visentin","r":"S","label":"Visentin"},{"n":"7","f":"Giulia","l":"Resmini","r":"S","label":"Resmini"},{"n":"9","f":"Benedetta","l":"Campagnolo","r":"C","label":"Campagnolo"},{"n":"10","f":"Sara","l":"Pedrolli","r":"C","label":"Pedrolli"},{"n":"11","f":"Silene","l":"Martinelli","r":"C","label":"Martinelli"},{"n":"12","f":"Alice","l":"Feduzzi","r":"L","label":"Feduzzi"},{"n":"14","f":"Emma","l":"Magnabosco","r":"P","label":"Magnabosco"},{"n":"23","f":"Jessica","l":"Joly","r":"S","label":"Joly"}]},{"id":"wash4green-monviso-volley","gender":"F","league":"A2","name":"Wash4Green Monviso Volley","players":[{"n":"1","f":"Francesca","l":"Bosso","r":"S","label":"Bosso"},{"n":"2","f":"Nicole","l":"Modesti","r":"C","label":"Modesti"},{"n":"3","f":"Ludovica","l":"Mennecozzi","r":"P","label":"Mennecozzi"},{"n":"5","f":"Bianca","l":"Bucciarelli","r":"S","label":"Bucciarelli"},{"n":"7","f":"Manuela","l":"Ribechi","r":"L","label":"Ribechi"},{"n":"8","f":"Alyssa","l":"Enneking","r":"S","label":"Enneking"},{"n":"9","f":"Sveva","l":"Parini","r":"C","label":"Parini"},{"n":"10","f":"Alice","l":"Farina","r":"C","label":"Farina"},{"n":"11","f":"Emma","l":"Bonansea","r":"L","label":"Bonansea"},{"n":"13","f":"Aurora","l":"Pistolesi","r":"S","label":"Pistolesi"},{"n":"17","f":"Maria Irene","l":"Ricci","r":"P","label":"Ricci"},{"n":"23","f":"Irbe","l":"Lazda","r":"O","label":"Lazda"},{"n":"24","f":"Olimpia","l":"Cicogna","r":"O","label":"Cicogna"}]},{"id":"acqua-sant-anna-cuneo","gender":"M","league":"A1","name":"Acqua Sant'Anna Cuneo","players":[{"n":"2","f":"Manuel","l":"Coscione","r":"P","label":"Coscione"},{"n":"3","f":"Domenico","l":"Cavaccini","r":"L","label":"Cavaccini"},{"n":"4","f":"Thibault","l":"Loubeyre","r":"L","label":"Loubeyre"},{"n":"9","f":"Bryan","l":"Argilagos","r":"P","label":"Argilagos"},{"n":"10","f":"Lorenzo","l":"Sala","r":"O","label":"Sala"},{"n":"11","f":"Nicolò","l":"Volpe","r":"C","label":"Volpe"},{"n":"12","f":"Emanuele","l":"Barberio","r":"C","label":"Barberio"},{"n":"14","f":"Alexandre","l":"Strehlau","r":"S","label":"Strehlau"},{"n":"18","f":"Nathan","l":"Feral","r":"O","label":"Feral"},{"n":"19","f":"Poriya","l":"Hossein Khanzadeh","r":"S","label":"Hossein Khanzadeh"},{"n":"20","f":"Ethan","l":"Champlin","r":"S","label":"Champlin"},{"n":"22","f":"Lorenzo","l":"Codarin","r":"C","label":"Codarin"},{"n":"23","f":"Federico","l":"Giraudo","r":"S","label":"Giraudo"},{"n":"39","f":"Leandro","l":"Mosca","r":"C","label":"Mosca"}]},{"id":"allianz-milano","gender":"M","league":"A1","name":"Allianz Milano","players":[{"n":"3","f":"Francesco","l":"Recine","r":"S","label":"Recine"},{"n":"4","f":"Tommaso","l":"Ichino","r":"S","label":"Ichino"},{"n":"5","f":"Damiano","l":"Catania","r":"L","label":"Catania"},{"n":"6","f":"Simone","l":"Porro","r":"P","label":"Porro"},{"n":"7","f":"Davi","l":"Tenorio","r":"C","label":"Tenorio"},{"n":"8","f":"Filippo","l":"Bartolucci","r":"C","label":"Bartolucci"},{"n":"9","f":"Alessandro","l":"Benacchio","r":"C","label":"Benacchio"},{"n":"10","f":"Basil","l":"Dermaux","r":"O","label":"Dermaux"},{"n":"12","f":"Seppe","l":"Rotty","r":"S","label":"Rotty"},{"n":"13","f":"Robertlandy","l":"Simon","r":"C","label":"Simon"},{"n":"14","f":"Santiago","l":"Orduna","r":"P","label":"Orduna"},{"n":"15","f":"Tatsunori","l":"Otsuka","r":"S","label":"Otsuka"},{"n":"16","f":"Federico","l":"Argano","r":"O","label":"Argano"},{"n":"17","f":"Jacopo","l":"Corbetta","r":"L","label":"Corbetta"},{"n":"21","f":"Georgi","l":"Tatarov","r":"S","label":"Tatarov"}]},{"id":"cisterna-volley","gender":"M","league":"A1","name":"Cisterna Volley","players":[{"n":"1","f":"Vilmos","l":"Szabo","r":"P","label":"Szabo"},{"n":"3","f":"Giulio","l":"Magalini","r":"S","label":"Magalini"},{"n":"5","f":"Lorenzo","l":"Magliano","r":"S","label":"Magliano"},{"n":"6","f":"Shikun","l":"Peng","r":"C","label":"Peng"},{"n":"7","f":"Tommaso","l":"Barotto","r":"O","label":"Barotto"},{"n":"10","f":"Filippo","l":"Lanza","r":"S","label":"Lanza"},{"n":"11","f":"Alessandro","l":"Fanizza","r":"P","label":"Fanizza"},{"n":"14","f":"Francesco","l":"Pierri","r":"L","label":"Pierri"},{"n":"17","f":"Miguel Angel","l":"Martinez Palacios","r":"O","label":"Martinez Palacios"},{"n":"18","f":"Daniele","l":"Mazzone","r":"C","label":"Mazzone"},{"n":"22","f":"Noa","l":"Duflos-Rossi","r":"S","label":"Duflos-Rossi"},{"n":"24","f":"Jacopo","l":"Tosti","r":"C","label":"Tosti"},{"n":"77","f":"Filippo","l":"Federici","r":"L","label":"Federici"}]},{"id":"cucine-lube-civitanova","gender":"M","league":"A1","name":"Cucine Lube Civitanova","players":[{"n":"1","f":"Simeon","l":"Nikolov","r":"P","label":"S. Nikolov"},{"n":"3","f":"Giovanni Maria","l":"Gargiulo","r":"C","label":"Gargiulo"},{"n":"4","f":"Eric","l":"Loeppky","r":"S","label":"Loeppky"},{"n":"6","f":"Francesco","l":"Bisotto","r":"L","label":"Bisotto"},{"n":"7","f":"Fabio","l":"Balaso","r":"L","label":"Balaso"},{"n":"8","f":"Alberto","l":"Polo","r":"C","label":"Polo"},{"n":"9","f":"Davide","l":"Gardini","r":"S","label":"Gardini"},{"n":"10","f":"Miran","l":"Kujundzic","r":"S","label":"Kujundzic"},{"n":"11","f":"Aleksandar","l":"Nikolov","r":"S","label":"A. Nikolov"},{"n":"15","f":"Francesco","l":"Zoppellari","r":"P","label":"Zoppellari"},{"n":"17","f":"Jackson","l":"Howe","r":"C","label":"Howe"},{"n":"18","f":"Maksym","l":"Tonkonoh","r":"O","label":"Tonkonoh"},{"n":"19","f":"Antonin","l":"Klimes","r":"C","label":"Klimes"},{"n":"21","f":"Mattia","l":"Bottolo","r":"S","label":"Bottolo"}]},{"id":"gas-sales-bluenergy-piacenza","gender":"M","league":"A1","name":"Gas Sales Bluenergy Piacenza","players":[{"n":"1","f":"Merrick","l":"McHenry","r":"C","label":"McHenry"},{"n":"2","f":"Cooper","l":"Robinson","r":"S","label":"Robinson"},{"n":"5","f":"Paolo","l":"Porro","r":"P","label":"Porro"},{"n":"6","f":"Henri Emmanuel","l":"Leon","r":"O","label":"Leon"},{"n":"8","f":"Domenico","l":"Pace","r":"L","label":"Pace"},{"n":"9","f":"Nikola","l":"Brboric","r":"S","label":"Brboric"},{"n":"10","f":"Francesco","l":"Comparoni","r":"C","label":"Comparoni"},{"n":"12","f":"Gianluca","l":"Galassi","r":"C","label":"Galassi"},{"n":"13","f":"Manuel","l":"Zlatanov","r":"S","label":"Zlatanov"},{"n":"14","f":"Dragan","l":"Travica","r":"P","label":"Travica"},{"n":"15","f":"Francesco","l":"Rizzo","r":"L","label":"Rizzo"},{"n":"21","f":"Daniel","l":"Iyegbekedo","r":"C","label":"Iyegbekedo"},{"n":"22","f":"Josè Miguel","l":"Gutierrez","r":"S","label":"Gutierrez"},{"n":"23","f":"Alessandro","l":"Bovolenta","r":"O","label":"Bovolenta"}]},{"id":"itas-trentino-m","gender":"M","league":"A1","name":"Itas Trentino","players":[{"n":"2","f":"Federico","l":"Roberti","r":"S","label":"Roberti"},{"n":"4","f":"Nicola","l":"Zonta","r":"P","label":"Zonta"},{"n":"5","f":"Alessandro","l":"Michieletto","r":"S","label":"Michieletto"},{"n":"6","f":"Riccardo","l":"Sbertoli","r":"P","label":"Sbertoli"},{"n":"7","f":"Riccardo","l":"Gollini","r":"L","label":"Gollini"},{"n":"11","f":"Theo","l":"Faure","r":"O","label":"Faure"},{"n":"12","f":"Elia","l":"Bossi","r":"C","label":"Bossi"},{"n":"13","f":"Gabriele","l":"Laurenzano","r":"L","label":"Laurenzano"},{"n":"15","f":"Daniele","l":"Lavia","r":"S","label":"Lavia"},{"n":"17","f":"Renars-Paul","l":"Jansons","r":"O","label":"Jansons"},{"n":"18","f":"Adriano Xavier","l":"Cavalcante","r":"S","label":"Cavalcante"},{"n":"23","f":"Flavio","l":"Resende Gualberto","r":"C","label":"Resende Gualberto"},{"n":"29","f":"Aleksandar","l":"Nedeljkovic","r":"C","label":"Nedeljkovic"},{"n":"33","f":"Simon Valentin","l":"Torwie","r":"C","label":"Torwie"}]},{"id":"pallavolo-padova","gender":"M","league":"A1","name":"Pallavolo Padova","players":[{"n":"1","f":"Amir Mohammad","l":"Golzadeh","r":"O","label":"Golzadeh"},{"n":"3","f":"Alessandro","l":"Bristot","r":"S","label":"Bristot"},{"n":"4","f":"Andrea","l":"Ruzza","r":"C","label":"Ruzza"},{"n":"5","f":"Simone","l":"Rinaldi","r":"P","label":"Rinaldi"},{"n":"6","f":"Francesco","l":"D'Amico","r":"L","label":"D'Amico"},{"n":"7","f":"Joscha","l":"Kunstmann","r":"C","label":"Kunstmann"},{"n":"8","f":"Marco","l":"Pellacani","r":"C","label":"Pellacani"},{"n":"9","f":"Mattia","l":"Uliana","r":"L","label":"Uliana"},{"n":"11","f":"Leonardo Lukas","l":"Leodolter","r":"S","label":"Leodolter"},{"n":"12","f":"Francesco","l":"Bergamasco","r":"S","label":"Bergamasco"},{"n":"14","f":"Mattia","l":"Orioli","r":"S","label":"Orioli"},{"n":"15","f":"Arshia","l":"Behnezhad","r":"P","label":"Behnezhad"},{"n":"17","f":"Brendan Robert","l":"Mills","r":"O","label":"Mills"},{"n":"18","f":"Andrea","l":"Truocchio","r":"C","label":"Truocchio"}]},{"id":"rana-verona","gender":"M","league":"A1","name":"Rana Verona","players":[{"n":"1","f":"Aidan","l":"Zingel","r":"C","label":"Zingel"},{"n":"2","f":"Lorenzo","l":"Cortesia","r":"C","label":"Cortesia"},{"n":"4","f":"Leonardo","l":"Scanferla","r":"L","label":"Scanferla"},{"n":"5","f":"Kellian","l":"Motta Paes","r":"P","label":"Motta Paes"},{"n":"6","f":"Marco","l":"Vitelli","r":"C","label":"Vitelli"},{"n":"7","f":"Matteo","l":"Staforini","r":"L","label":"Staforini"},{"n":"9","f":"Noumory","l":"Keita","r":"S","label":"Keita"},{"n":"10","f":"Francesco","l":"Sani","r":"S","label":"Sani"},{"n":"11","f":"Micah","l":"Christenson","r":"P","label":"Christenson"},{"n":"12","f":"Anders","l":"Mol","r":"O","label":"Mol"},{"n":"16","f":"Lukas","l":"Glatz","r":"S","label":"Glatz"},{"n":"17","f":"Simone","l":"Anzani","r":"C","label":"Anzani"},{"n":"19","f":"Rok","l":"Mozic","r":"S","label":"Mozic"},{"n":"20","f":"Paul","l":"Buchegger","r":"O","label":"Buchegger"}]},{"id":"sir-susa-scai-perugia","gender":"M","league":"A1","name":"Sir Susa Scai Perugia","players":[{"n":"4","f":"Mathis","l":"Henno","r":"S","label":"Henno"},{"n":"6","f":"Simone","l":"Giannelli","r":"P","label":"Giannelli"},{"n":"7","f":"Ferre","l":"Reggers","r":"O","label":"Reggers"},{"n":"8","f":"Agustin","l":"Loser","r":"C","label":"Loser"},{"n":"9","f":"Stefano","l":"Cappadona","r":"P","label":"Cappadona"},{"n":"10","f":"Luca","l":"Loreti","r":"L","label":"Loreti"},{"n":"11","f":"Sebastian","l":"Solé","r":"C","label":"Solé"},{"n":"12","f":"David","l":"Kollator","r":"O","label":"Kollator"},{"n":"16","f":"Kamil","l":"Semeniuk","r":"S","label":"Semeniuk"},{"n":"17","f":"Oleh","l":"Plotnytskyi","r":"S","label":"Plotnytskyi"},{"n":"18","f":"Giovanni","l":"Sanguinetti","r":"C","label":"Sanguinetti"},{"n":"20","f":"Marco","l":"Gaggini","r":"L","label":"Gaggini"},{"n":"21","f":"Seyed Matin","l":"Hosseini","r":"S","label":"Hosseini"},{"n":"22","f":"Federico","l":"Crosato","r":"C","label":"Crosato"}]},{"id":"tinet-prata-di-pordenone","gender":"M","league":"A1","name":"Tinet Prata di Pordenone","players":[{"n":"1","f":"Wout","l":"D'Heer","r":"C","label":"D'Heer"},{"n":"2","f":"Nicolò","l":"Katalan","r":"C","label":"Katalan"},{"n":"3","f":"Alessio","l":"Alberini","r":"P","label":"Alberini"},{"n":"5","f":"Federico","l":"Frassanella Midolo","r":"C","label":"Frassanella Midolo"},{"n":"6","f":"Alberto","l":"Pol","r":"S","label":"Pol"},{"n":"7","f":"Sebastiano","l":"Marsili","r":"P","label":"Marsili"},{"n":"8","f":"Alessandro","l":"Toscani","r":"L","label":"Toscani"},{"n":"9","f":"Kirill","l":"Klets","r":"O","label":"Klets"},{"n":"10","f":"Jacopo","l":"Larizza","r":"C","label":"Larizza"},{"n":"11","f":"Federico","l":"Guadagnini","r":"L","label":"Guadagnini"},{"n":"12","f":"Jernej","l":"Terpin","r":"S","label":"Terpin"},{"n":"13","f":"Nooa","l":"Marttila","r":"S","label":"Marttila"},{"n":"14","f":"Lukas Felipe","l":"Bergmann","r":"S","label":"Bergmann"},{"n":"17","f":"David","l":"Umek","r":"S","label":"Umek"}]},{"id":"valsa-group-modena","gender":"M","league":"A1","name":"Valsa Group Modena","players":[{"n":"1","f":"Arthur","l":"Bento","r":"S","label":"Bento"},{"n":"3","f":"Amir","l":"Tizi-Oualou","r":"P","label":"Tizi-Oualou"},{"n":"4","f":"Luke","l":"Perry","r":"L","label":"Perry"},{"n":"5","f":"Pardo","l":"Mati","r":"C","label":"Mati"},{"n":"6","f":"Sil","l":"Meijs","r":"O","label":"Meijs"},{"n":"7","f":"Thomas","l":"Jaeschke","r":"S","label":"Jaeschke"},{"n":"8","f":"Nicolò","l":"Garello","r":"S","label":"Garello"},{"n":"9","f":"Leonardo","l":"Barbanti","r":"P","label":"Barbanti"},{"n":"10","f":"Luca","l":"Tauletta","r":"C","label":"Tauletta"},{"n":"13","f":"Federico","l":"Menchetti","r":"L","label":"Menchetti"},{"n":"17","f":"Luca","l":"Porro","r":"S","label":"Porro"},{"n":"18","f":"Gabriele","l":"Di Martino","r":"C","label":"Di Martino"},{"n":"19","f":"Roberto","l":"Russo","r":"C","label":"Russo"},{"n":"20","f":"Nik","l":"Mujanovic","r":"O","label":"Mujanovic"}]},{"id":"vero-volley-monza","gender":"M","league":"A1","name":"Vero Volley Monza","players":[{"n":"1","f":"Zhasmin","l":"Velichkov","r":"S","label":"Velichkov"},{"n":"2","f":"Diego","l":"Frascio","r":"O","label":"Frascio"},{"n":"3","f":"Leonardo","l":"Bonacchi","r":"P","label":"Bonacchi"},{"n":"4","f":"Flavio","l":"Morazzini","r":"L","label":"Morazzini"},{"n":"5","f":"Nicolò","l":"Mapelli","r":"O","label":"Mapelli"},{"n":"6","f":"Jacopo","l":"Massari","r":"S","label":"Massari"},{"n":"7","f":"Andrew","l":"Rowan","r":"P","label":"Rowan"},{"n":"9","f":"Iliya","l":"Petkov","r":"C","label":"Petkov"},{"n":"10","f":"Bara","l":"Fall","r":"C","label":"Fall"},{"n":"13","f":"Thomas","l":"Beretta","r":"C","label":"Beretta"},{"n":"17","f":"Hryhorii","l":"Khotsevitch","r":"S","label":"Khotsevitch"},{"n":"18","f":"Nicola","l":"Pesaresi","r":"L","label":"Pesaresi"},{"n":"19","f":"Pierre","l":"Perin","r":"S","label":"Perin"},{"n":"22","f":"Victorio","l":"Ceban","r":"C","label":"Ceban"}]},{"id":"abba-pineto","gender":"M","league":"A2","name":"Abba Pineto","players":[{"n":"1","f":"Riccardo","l":"Copelli","r":"C","label":"Copelli"},{"n":"3","f":"Mattia","l":"Catone","r":"P","label":"Catone"},{"n":"4","f":"Luca","l":"Butti","r":"L","label":"Butti"},{"n":"5","f":"Luis","l":"Vattovaz","r":"O","label":"Vattovaz"},{"n":"6","f":"Martin","l":"Licek","r":"S","label":"Licek"},{"n":"7","f":"Marco","l":"Di Felice","r":"S","label":"Di Felice"},{"n":"8","f":"Matheus","l":"Krauchuk Esquivel","r":"O","label":"Krauchuk Esquivel"},{"n":"9","f":"Paolo Luigi","l":"Di Silvestre","r":"S","label":"Di Silvestre"},{"n":"10","f":"Nicolò","l":"Santi Bortolotti","r":"L","label":"Santi Bortolotti"},{"n":"11","f":"Mirco","l":"Compagnoni","r":"C","label":"Compagnoni"},{"n":"12","f":"Nicola","l":"Candeli","r":"C","label":"Candeli"},{"n":"18","f":"Gianluca","l":"Loglisci","r":"S","label":"Loglisci"},{"n":"20","f":"Alessandro","l":"Ribecca","r":"P","label":"Ribecca"},{"n":"33","f":"Lorenzo","l":"Calonico","r":"C","label":"Calonico"}]},{"id":"alva-inox-porto-viro","gender":"M","league":"A2","name":"Alva Inox Porto Viro","players":[{"n":"3","f":"Andrea","l":"Pegoraro","r":"C","label":"Pegoraro"},{"n":"4","f":"Alberto","l":"Zaghetto","r":"O","label":"Zaghetto"},{"n":"5","f":"Nicola","l":"Tiozzo","r":"S","label":"Tiozzo"},{"n":"6","f":"Lorenzo","l":"Sperotto","r":"P","label":"Sperotto"},{"n":"7","f":"Lorenzo","l":"Grottoli","r":"C","label":"Grottoli"},{"n":"8","f":"Egon","l":"Lamprecht","r":"L","label":"Lamprecht"},{"n":"9","f":"Matteo","l":"Sperandio","r":"C","label":"Sperandio"},{"n":"10","f":"Diego","l":"Cantagalli","r":"O","label":"Cantagalli"},{"n":"12","f":"Jan","l":"Klobucar","r":"S","label":"Klobucar"},{"n":"16","f":"Davide","l":"Morgese","r":"L","label":"Morgese"},{"n":"17","f":"Giacomo","l":"Brondolo","r":"S","label":"Brondolo"},{"n":"18","f":"Gabriele","l":"Chiloiro","r":"S","label":"Chiloiro"},{"n":"23","f":"Emanuele","l":"Tassoni","r":"P","label":"Tassoni"},{"n":"45","f":"Jacopo","l":"Milan","r":"C","label":"Milan"}]},{"id":"belluno-volley","gender":"M","league":"A2","name":"Belluno Volley","players":[{"n":"1","f":"Calogero","l":"Tulone","r":"P","label":"Tulone"},{"n":"2","f":"Matteo","l":"Mozzato","r":"C","label":"Mozzato"},{"n":"3","f":"Karli","l":"Allik","r":"S","label":"Allik"},{"n":"5","f":"Pietro","l":"Melato","r":"P","label":"Melato"},{"n":"7","f":"Filippo","l":"Bortoletto","r":"C","label":"Bortoletto"},{"n":"8","f":"Enrico","l":"Basso","r":"C","label":"Basso"},{"n":"9","f":"Nicola","l":"Iannelli","r":"L","label":"Iannelli"},{"n":"10","f":"Francesco","l":"Corrado","r":"S","label":"Corrado"},{"n":"11","f":"Andrea","l":"Baldi","r":"O","label":"Baldi"},{"n":"12","f":"Andrea","l":"Zanotti","r":"C","label":"Zanotti"},{"n":"15","f":"Marco","l":"Cantagalli","r":"S","label":"Cantagalli"},{"n":"16","f":"Giovanni","l":"Tosatto","r":"L","label":"Tosatto"},{"n":"17","f":"Andrea","l":"Polacco","r":"O","label":"Polacco"},{"n":"22","f":"Ahmed","l":"Azab","r":"S","label":"Azab"},{"n":"32","f":"Kristian","l":"Gamba","r":"O","label":"Gamba"}]},{"id":"conad-reggio-emilia","gender":"M","league":"A2","name":"Conad Reggio Emilia","players":[{"n":"3","f":"Martins","l":"Arasomwan","r":"C","label":"Arasomwan"},{"n":"4","f":"Martin","l":"Chevalier","r":"S","label":"Chevalier"},{"n":"5","f":"Andrea","l":"Marini","r":"L","label":"Marini"},{"n":"8","f":"Michael","l":"Zanni","r":"P","label":"Zanni"},{"n":"9","f":"Martino","l":"Bigozzi","r":"C","label":"Bigozzi"},{"n":"10","f":"Alessandro","l":"Zecca","r":"L","label":"Zecca"},{"n":"11","f":"Riccardo","l":"Mian","r":"O","label":"Mian"},{"n":"14","f":"Riccardo","l":"Alberghini","r":"C","label":"Alberghini"},{"n":"15","f":"Rusi","l":"Zhelev","r":"S","label":"Zhelev"},{"n":"18","f":"Nicholas","l":"Sighinolfi","r":"C","label":"Sighinolfi"},{"n":"20","f":"Matteo","l":"Fontanesi","r":"S","label":"Fontanesi"},{"n":"24","f":"Riccardo","l":"Mazzon","r":"S","label":"Mazzon"},{"n":"27","f":"Alessandro","l":"Storchi","r":"O","label":"Storchi"},{"n":"33","f":"Cristian","l":"Bertazzoni","r":"S","label":"Bertazzoni"},{"n":"44","f":"Filippo","l":"Santambrogio","r":"P","label":"Santambrogio"}]},{"id":"consar-ravenna","gender":"M","league":"A2","name":"Consar Ravenna","players":[{"n":"1","f":"Hristiyan","l":"Dimitrov","r":"O","label":"Dimitrov"},{"n":"4","f":"Luca","l":"Iurlaro","r":"P","label":"Iurlaro"},{"n":"6","f":"Lorenzo","l":"Ciampi","r":"C","label":"Ciampi"},{"n":"7","f":"Alex","l":"Erati","r":"C","label":"Erati"},{"n":"8","f":"Roberto","l":"Cominetti","r":"S","label":"Cominetti"},{"n":"10","f":"Riccardo","l":"Goi","r":"L","label":"Goi"},{"n":"11","f":"Antonino","l":"Russo","r":"P","label":"Russo"},{"n":"13","f":"Marco","l":"Pierotti","r":"S","label":"Pierotti"},{"n":"14","f":"Andrea","l":"Giani","r":"S","label":"Giani"},{"n":"17","f":"Leonardo","l":"Capiozzo","r":"O","label":"Capiozzo"},{"n":"18","f":"Andrea","l":"Asoli","r":"L","label":"Asoli"},{"n":"20","f":"Martin","l":"Berger","r":"C","label":"Berger"},{"n":"21","f":"Simone","l":"Fabbri","r":"S","label":"Fabbri"}]},{"id":"consoli-sferc-brescia","gender":"M","league":"A2","name":"Consoli Sferc Brescia","players":[{"n":"1","f":"Mattia","l":"Cavani","r":"S","label":"Cavani"},{"n":"5","f":"Nicolò","l":"Ciccolella","r":"C","label":"Ciccolella"},{"n":"6","f":"Andrea","l":"Solazzi","r":"C","label":"Solazzi"},{"n":"7","f":"Francisco","l":"Iribarne","r":"S","label":"Iribarne"},{"n":"8","f":"Antoni","l":"Miner","r":"S","label":"Miner"},{"n":"9","f":"Pietro","l":"Bonisoli","r":"L","label":"Bonisoli"},{"n":"10","f":"Andrea","l":"Franzoni","r":"L","label":"Franzoni"},{"n":"11","f":"Gabriele","l":"Sanfilippo","r":"C","label":"Sanfilippo"},{"n":"12","f":"Edoardo","l":"Vinati","r":"S","label":"Vinati"},{"n":"14","f":"Filippo","l":"Zambonardi","r":"S","label":"Zambonardi"},{"n":"15","f":"Andrea","l":"Bettinzoli","r":"S","label":"Bettinzoli"},{"n":"16","f":"Nicola","l":"Salsi","r":"P","label":"Salsi"},{"n":"20","f":"Mattia","l":"Vagnini","r":"S","label":"Vagnini"},{"n":"21","f":"Pietro","l":"Ghirardi","r":"P","label":"Ghirardi"},{"n":"22","f":"Julius","l":"Firkal","r":"S","label":"Firkal"},{"n":"46","f":"Michele","l":"Brozzi","r":"P","label":"Brozzi"},{"n":"88","f":"Federico","l":"Compagnoni","r":"C","label":"Compagnoni"},{"n":"99","f":"Manuele","l":"Lucconi","r":"O","label":"Lucconi"}]},{"id":"domotek-reggio-calabria","gender":"M","league":"A2","name":"Domotek Reggio Calabria","players":[{"n":"1","f":"Saverio","l":"De Santis","r":"L","label":"De Santis"},{"n":"2","f":"Alessandro","l":"Bruno","r":"L","label":"Bruno"},{"n":"6","f":"Luca","l":"Presta","r":"C","label":"Presta"},{"n":"7","f":"Andrea","l":"Asteriti","r":"S","label":"Asteriti"},{"n":"8","f":"Davide","l":"Saitta","r":"P","label":"Saitta"},{"n":"9","f":"Marco","l":"Bragatto","r":"C","label":"Bragatto"},{"n":"11","f":"Daniele","l":"Buzzi","r":"C","label":"Buzzi"},{"n":"14","f":"Domenico","l":"Laganà","r":"O","label":"Laganà"},{"n":"17","f":"Oleksandr","l":"Boiko","r":"O","label":"Boiko"},{"n":"18","f":"Riccardo","l":"Iervolino","r":"S","label":"Iervolino"},{"n":"21","f":"Marco","l":"Favretto","r":"P","label":"Favretto"},{"n":"23","f":"Enrico","l":"Lazzaretto","r":"S","label":"Lazzaretto"},{"n":"25","f":"Klemen","l":"Sen","r":"S","label":"Sen"},{"n":"27","f":"Mattia","l":"Bonanno","r":"C","label":"Bonanno"}]},{"id":"essence-hotels-fano","gender":"M","league":"A2","name":"Essence Hotels Fano","players":[{"n":"1","f":"Giulio","l":"Pinali","r":"O","label":"Pinali"},{"n":"2","f":"Stefano","l":"Trillini","r":"C","label":"Trillini"},{"n":"4","f":"Claudio","l":"Cattaneo","r":"S","label":"Cattaneo"},{"n":"5","f":"Alberto","l":"Benedicenti","r":"L","label":"Benedicenti"},{"n":"7","f":"Alessandro","l":"Tondo","r":"C","label":"Tondo"},{"n":"8","f":"Christian","l":"Falcioni","r":"O","label":"Falcioni"},{"n":"10","f":"Stoil","l":"Palev","r":"P","label":"Palev"},{"n":"11","f":"Stefano","l":"Bisotto","r":"P","label":"Bisotto"},{"n":"13","f":"Davide","l":"Boschini","r":"O","label":"Boschini"},{"n":"14","f":"Andrea","l":"Usanza","r":"L","label":"Usanza"},{"n":"17","f":"Matteo","l":"Meschiari","r":"S","label":"Meschiari"},{"n":"18","f":"Denis","l":"Karyagin","r":"S","label":"Karyagin"},{"n":"19","f":"Filippo","l":"Pascucci","r":"C","label":"Pascucci"},{"n":"23","f":"Emanuele","l":"Zanolla","r":"C","label":"Zanolla"}]},{"id":"gruppo-fisiomed-macerata","gender":"M","league":"A2","name":"Gruppo Fisiomed Macerata","players":[{"n":"1","f":"Ionut","l":"Ambrose","r":"C","label":"Ambrose"},{"n":"4","f":"Andrea","l":"Marchisio","r":"L","label":"Marchisio"},{"n":"5","f":"Marco","l":"Novello","r":"O","label":"Novello"},{"n":"6","f":"Simon","l":"Plaskie","r":"S","label":"Plaskie"},{"n":"7","f":"Karil","l":"Dadash Adeh","r":"O","label":"Dadash Adeh"},{"n":"8","f":"Edoardo","l":"Marchetti","r":"C","label":"Marchetti"},{"n":"9","f":"Lorenzo","l":"Esposito","r":"P","label":"Esposito"},{"n":"10","f":"Gabriele","l":"Zillio","r":"S","label":"Zillio"},{"n":"12","f":"Davide","l":"Diaferia","r":"C","label":"Diaferia"},{"n":"13","f":"Alessandro","l":"Becchio","r":"P","label":"Becchio"},{"n":"16","f":"Daniel","l":"Frage Rubin","r":"S","label":"Frage Rubin"},{"n":"18","f":"Luigi","l":"Randazzo","r":"S","label":"Randazzo"},{"n":"22","f":"Diego","l":"Dolcini","r":"L","label":"Dolcini"},{"n":"31","f":"Leonardo Gabriel","l":"Sandu","r":"C","label":"Sandu"}]},{"id":"jv-gioia-del-colle","gender":"M","league":"A2","name":"JV Gioia Del Colle","players":[{"n":"1","f":"Boris Biserov","l":"Nachev","r":"C","label":"Nachev"},{"n":"3","f":"Riccardo","l":"Capelli","r":"S","label":"Capelli"},{"n":"6","f":"Mattia","l":"Raffa","r":"L","label":"Raffa"},{"n":"7","f":"Felice","l":"Sette","r":"S","label":"Sette"},{"n":"8","f":"Giuseppe","l":"Longo","r":"P","label":"Longo"},{"n":"9","f":"Vladimir","l":"Garkov","r":"S","label":"Garkov"},{"n":"10","f":"Cristian","l":"Frumuselu","r":"C","label":"Frumuselu"},{"n":"11","f":"Sandi","l":"Persoglia","r":"C","label":"Persoglia"},{"n":"12","f":"Matteo","l":"Pedron","r":"P","label":"Pedron"},{"n":"14","f":"Marco","l":"Marrone","r":"S","label":"Marrone"},{"n":"17","f":"Stefano","l":"Ferri","r":"O","label":"Ferri"},{"n":"18","f":"Giulio","l":"Sabbi","r":"O","label":"Sabbi"},{"n":"22","f":"Gianluca","l":"Fahr","r":"C","label":"Fahr"},{"n":"23","f":"Salvatore","l":"Cannilla","r":"L","label":"Cannilla"}]},{"id":"rinascita-lagonegro","gender":"M","league":"A2","name":"Rinascita Lagonegro","players":[{"n":"1","f":"Francesco","l":"Giacomini","r":"C","label":"Giacomini"},{"n":"2","f":"Nicola","l":"Fortunato","r":"L","label":"Fortunato"},{"n":"4","f":"Redjo","l":"Koci","r":"S","label":"Koci"},{"n":"5","f":"Francesco","l":"Cottarelli","r":"P","label":"Cottarelli"},{"n":"7","f":"Matteo","l":"Salvador","r":"S","label":"Salvador"},{"n":"8","f":"Leonardo","l":"Caletti","r":"L","label":"Caletti"},{"n":"9","f":"Gaetano","l":"Penna","r":"O","label":"Penna"},{"n":"11","f":"Cosimo","l":"Balestra","r":"C","label":"Balestra"},{"n":"12","f":"Gabriele","l":"Tognoni","r":"C","label":"Tognoni"},{"n":"13","f":"Alessandro","l":"Chinello","r":"O","label":"Chinello"},{"n":"15","f":"Stefano","l":"Armenante","r":"S","label":"Armenante"},{"n":"21","f":"Stavros","l":"Mouchlias","r":"S","label":"Mouchlias"},{"n":"45","f":"Mario","l":"Catinelli Guglielminetti","r":"P","label":"Catinelli Guglielminetti"}]},{"id":"sviluppo-sud-palmi","gender":"M","league":"A2","name":"Sviluppo Sud Palmi","players":[{"n":"1","f":"Luka","l":"Basic","r":"S","label":"Basic"},{"n":"2","f":"Marco Vincenzo","l":"De Santis","r":"L","label":"De Santis"},{"n":"5","f":"Matheus","l":"Motzo","r":"O","label":"Motzo"},{"n":"6","f":"Andrea","l":"Canella","r":"C","label":"Canella"},{"n":"7","f":"Mattia","l":"Gottardo","r":"S","label":"Gottardo"},{"n":"8","f":"Roland","l":"Gergye","r":"S","label":"Gergye"},{"n":"9","f":"Mattia","l":"Filippelli","r":"C","label":"Filippelli"},{"n":"10","f":"Francesco","l":"Bernardis","r":"P","label":"Bernardis"},{"n":"12","f":"Enrico","l":"Diamantini","r":"C","label":"Diamantini"},{"n":"13","f":"Andrea","l":"Gasparini","r":"O","label":"Gasparini"},{"n":"14","f":"Raul","l":"Parolari","r":"S","label":"Parolari"},{"n":"15","f":"Manuele","l":"Marchiani","r":"P","label":"Marchiani"},{"n":"16","f":"Marco","l":"Valbusa","r":"C","label":"Valbusa"},{"n":"18","f":"Peppino","l":"Carbone","r":"L","label":"Carbone"}]},{"id":"virtus-volley-napoli","gender":"M","league":"A2","name":"Virtus Volley Napoli","players":[{"n":"1","f":"Francesco","l":"Barretta","r":"S","label":"Barretta"},{"n":"3","f":"Nicola","l":"Agapitos","r":"S","label":"Agapitos"},{"n":"5","f":"Nicola","l":"Cianciotta","r":"S","label":"Cianciotta"},{"n":"7","f":"Andrea","l":"Mattei","r":"C","label":"Mattei"},{"n":"8","f":"Davide","l":"Luzzi","r":"L","label":"Luzzi"},{"n":"9","f":"Roberto","l":"Mastrangelo","r":"P","label":"Mastrangelo"},{"n":"10","f":"Maximiliano","l":"Cavanna","r":"P","label":"Cavanna"},{"n":"11","f":"Paolo","l":"Bonola","r":"C","label":"Bonola"},{"n":"12","f":"Henry","l":"Rempel","r":"O","label":"Rempel"},{"n":"22","f":"Simone","l":"Monda","r":"L","label":"Monda"},{"n":"27","f":"Robert Alexander","l":"Gavan","r":"O","label":"Gavan"},{"n":"31","f":"Gabriele","l":"Paloscia","r":"C","label":"Paloscia"},{"n":"77","f":"Giacomo","l":"Raffaelli","r":"S","label":"Raffaelli"},{"n":"90","f":"Marco","l":"Volpato","r":"C","label":"Volpato"}]},{"id":"yuasa-battery-grottazzolina","gender":"M","league":"A2","name":"Yuasa Battery Grottazzolina","players":[{"n":"1","f":"Matteo","l":"Zamagni","r":"C","label":"Zamagni"},{"n":"2","f":"Oleg","l":"Antonov","r":"S","label":"Antonov"},{"n":"3","f":"Marco","l":"Cubito","r":"C","label":"Cubito"},{"n":"4","f":"Tommaso","l":"Guzzo","r":"O","label":"Guzzo"},{"n":"5","f":"Oreste","l":"Cavuto","r":"S","label":"Cavuto"},{"n":"7","f":"Dragan","l":"Stankovic","r":"C","label":"Stankovic"},{"n":"8","f":"Luca","l":"Rossato","r":"O","label":"Rossato"},{"n":"10","f":"Tommaso","l":"Moretti","r":"S","label":"Moretti"},{"n":"11","f":"Filippo","l":"Mancini","r":"P","label":"Mancini"},{"n":"13","f":"Michele","l":"Fedrizzi","r":"S","label":"Fedrizzi"},{"n":"14","f":"Nicola","l":"Mazzon","r":"P","label":"Mazzon"},{"n":"15","f":"Stefano","l":"Michelini","r":"C","label":"Michelini"},{"n":"31","f":"Francesco","l":"Stella","r":"L","label":"Stella"},{"n":"33","f":"Davide Luigi","l":"Russo","r":"L","label":"Russo"}]},{"id":"allianz-arbit-brugherio","gender":"M","league":"A3","name":"Allianz Arbit Brugherio","players":[{"n":"1","f":"Pietro","l":"Bevilacqua","r":"P","label":"Bevilacqua"},{"n":"2","f":"Tommaso","l":"Corti","r":"L","label":"Corti"},{"n":"3","f":"Ioan","l":"Verciuc","r":"O","label":"Verciuc"},{"n":"4","f":"Nicola","l":"Massari","r":"S","label":"Massari"},{"n":"6","f":"Enrico","l":"Angilella","r":"C","label":"Angilella"},{"n":"7","f":"Riccardo","l":"Bergognoni","r":"S","label":"Bergognoni"},{"n":"8","f":"Leandro Roberto","l":"Garilli","r":"S","label":"Garilli"},{"n":"11","f":"Davide","l":"Barbetti","r":"P","label":"Barbetti"},{"n":"13","f":"Tommaso","l":"Piacentini","r":"C","label":"Piacentini"},{"n":"14","f":"Diego","l":"Bussolari","r":"S","label":"Bussolari"},{"n":"15","f":"Diego","l":"Simonazzi","r":"C","label":"Simonazzi"},{"n":"16","f":"Andrea","l":"Rossetti","r":"C","label":"Rossetti"},{"n":"17","f":"Luca","l":"Virtopeanu","r":"C","label":"Virtopeanu"},{"n":"21","f":"Samuele","l":"Filippi","r":"S","label":"Filippi"},{"n":"23","f":"Alessandro","l":"Zanchi","r":"S","label":"Zanchi"},{"n":"39","f":"Lorenzo","l":"Ardrizzi","r":"L","label":"Ardrizzi"}],"girone":"Bianco"},{"id":"bp-termosanitari-cirie","gender":"M","league":"A3","name":"BP Termosanitari Ciriè","players":[{"n":"1","f":"Andrea","l":"Castagneri","r":"O","label":"Castagneri"},{"n":"2","f":"Gabriele","l":"D'Ambrosio","r":"S","label":"D'Ambrosio"},{"n":"3","f":"Cristiano","l":"Sifletto","r":"P","label":"Sifletto"},{"n":"5","f":"Omar","l":"Louza","r":"O","label":"Louza"},{"n":"7","f":"Andrea","l":"Carlevaris","r":"P","label":"Carlevaris"},{"n":"8","f":"Simone","l":"Brugiafreddo","r":"S","label":"Brugiafreddo"},{"n":"9","f":"Filippo","l":"Turolla","r":"S","label":"Turolla"},{"n":"10","f":"Samuele","l":"Armando","r":"L","label":"Armando"},{"n":"11","f":"Filippo","l":"Rodini","r":"S","label":"Rodini"},{"n":"12","f":"Filippo","l":"Sancio","r":"P","label":"Sancio"},{"n":"13","f":"Damiano","l":"Tosi","r":"S","label":"Tosi"},{"n":"17","f":"Leonardo","l":"Cian","r":"C","label":"Cian"},{"n":"22","f":"Riccardo","l":"Bonfantini","r":"C","label":"Bonfantini"},{"n":"24","f":"Nicolò","l":"Boninsegni","r":"S","label":"Boninsegni"},{"n":"45","f":"Filippo","l":"Sarasino","r":"C","label":"Sarasino"}],"girone":"Bianco"},{"id":"campi-reali-cantu","gender":"M","league":"A3","name":"Campi Reali Cantù","players":[{"n":"1","f":"Gabriele","l":"Pertoldi","r":"S","label":"Pertoldi"},{"n":"2","f":"Nicolò","l":"Hoffer","r":"L","label":"Hoffer"},{"n":"4","f":"Matteo","l":"Bonomi","r":"P","label":"Bonomi"},{"n":"5","f":"Andrea","l":"Emiliani","r":"S","label":"Emiliani"},{"n":"6","f":"Manuel","l":"Clemente Gonzales","r":"S","label":"Clemente Gonzales"},{"n":"7","f":"Matteo","l":"Baglieri","r":"S","label":"Baglieri"},{"n":"8","f":"Federico","l":"Mazza","r":"C","label":"Mazza"},{"n":"10","f":"Luca","l":"Chiapello","r":"S","label":"Chiapello"},{"n":"11","f":"Andrea","l":"Argenta","r":"O","label":"Argenta"},{"n":"13","f":"Riccardo","l":"Aretz","r":"C","label":"Aretz"},{"n":"14","f":"Luca","l":"Romano","r":"S","label":"Romano"},{"n":"18","f":"Timoteo","l":"Diani","r":"O","label":"Diani"},{"n":"21","f":"Francesco","l":"Gianotti","r":"P","label":"Gianotti"},{"n":"25","f":"Matteo","l":"Bigioni","r":"C","label":"Bigioni"},{"n":"29","f":"Simone","l":"Rigirozzo","r":"C","label":"Rigirozzo"},{"n":"44","f":"Tommaso","l":"Bianchi","r":"L","label":"Bianchi"}],"girone":"Bianco"},{"id":"cus-cagliari","gender":"M","league":"A3","name":"CUS Cagliari","players":[{"n":"1","f":"Giuseppe","l":"Sanna","r":"C","label":"Sanna"},{"n":"2","f":"Pietronorio","l":"Mariano","r":"O","label":"Mariano"},{"n":"3","f":"Marco Stefano","l":"Piludu","r":"L","label":"Piludu"},{"n":"4","f":"Matteo","l":"Iurisci","r":"S","label":"Iurisci"},{"n":"5","f":"Federico","l":"Bonacchi","r":"P","label":"Bonacchi"},{"n":"6","f":"Michael","l":"Menicali","r":"C","label":"Menicali"},{"n":"7","f":"Massimiliano","l":"Lopetrone","r":"L","label":"Lopetrone"},{"n":"8","f":"Mattia","l":"Modica","r":"L","label":"Modica"},{"n":"10","f":"Riccardo","l":"Muccione","r":"P","label":"Muccione"},{"n":"11","f":"Mohamed","l":"Azaz El Saidy","r":"O","label":"Azaz El Saidy"},{"n":"12","f":"Ranieri","l":"Truocchio","r":"S","label":"Truocchio"},{"n":"14","f":"Gabriele","l":"Sciarretti","r":"C","label":"Sciarretti"},{"n":"17","f":"Stefano","l":"Gozzo","r":"S","label":"Gozzo"},{"n":"22","f":"Francesco","l":"Soru","r":"S","label":"Soru"},{"n":"25","f":"Luca","l":"Galiazzo","r":"C","label":"Galiazzo"}],"girone":"Bianco"},{"id":"ermgroup-altotevere","gender":"M","league":"A3","name":"ErmGroup Altotevere","players":[{"n":"1","f":"Filippo","l":"Giovagnoli","r":"S","label":"Giovagnoli"},{"n":"2","f":"Davide","l":"Bianchini","r":"S","label":"Bianchini"},{"n":"3","f":"Vittorio","l":"Broccatelli","r":"L","label":"Broccatelli"},{"n":"4","f":"Francesco Elia","l":"Masala","r":"C","label":"Masala"},{"n":"5","f":"Simone","l":"Marzolla","r":"O","label":"Marzolla"},{"n":"7","f":"Alessandro","l":"Bellucci","r":"P","label":"Bellucci"},{"n":"8","f":"Riccardo","l":"Cengia","r":"C","label":"Cengia"},{"n":"9","f":"Roberto","l":"Pinali","r":"S","label":"Pinali"},{"n":"10","f":"Matteo","l":"Alpini","r":"S","label":"Alpini"},{"n":"13","f":"Flavio","l":"Procelli","r":"C","label":"Procelli"},{"n":"17","f":"Augusto","l":"Quarta","r":"C","label":"Quarta"},{"n":"21","f":"Giacomo","l":"Cherubini","r":"O","label":"Cherubini"},{"n":"22","f":"Matteo","l":"Maiocchi","r":"S","label":"Maiocchi"},{"n":"23","f":"Gabriele","l":"Luatti","r":"P","label":"Luatti"},{"n":"95","f":"Tommaso","l":"Baldini","r":"C","label":"Baldini"}],"girone":"Bianco"},{"id":"gabbiano-farmamed-mantova","gender":"M","league":"A3","name":"Gabbiano FarmaMed Mantova","players":[{"n":"1","f":"Leonardo","l":"Baciocco","r":"S","label":"Baciocco"},{"n":"2","f":"Matteo","l":"Lusetti","r":"P","label":"Lusetti"},{"n":"4","f":"Tommaso","l":"Daddio","r":"P","label":"Daddio"},{"n":"5","f":"Alberto","l":"Baldazzi","r":"O","label":"Baldazzi"},{"n":"7","f":"Francesco","l":"Andriola","r":"C","label":"Andriola"},{"n":"9","f":"Francesco","l":"Simoni","r":"C","label":"Simoni"},{"n":"10","f":"Nicola","l":"Padovani","r":"O","label":"Padovani"},{"n":"12","f":"Mattia","l":"Braghini","r":"L","label":"Braghini"},{"n":"13","f":"Nicolas","l":"Zamboni","r":"S","label":"Zamboni"},{"n":"15","f":"Matteo","l":"Zanini","r":"C","label":"Zanini"},{"n":"16","f":"Edoardo","l":"Gola","r":"S","label":"Gola"},{"n":"18","f":"Marco","l":"Fedrici","r":"S","label":"Fedrici"},{"n":"19","f":"Ludovico","l":"Toajari","r":"C","label":"Toajari"},{"n":"22","f":"Francesco","l":"Donati","r":"L","label":"Donati"}],"girone":"Bianco"},{"id":"kerakoll-sassuolo","gender":"M","league":"A3","name":"Kerakoll Sassuolo","players":[{"n":"4","f":"Marco","l":"Maletti","r":"S","label":"Maletti"},{"n":"5","f":"Ernesto","l":"Rascato","r":"C","label":"Rascato"},{"n":"6","f":"Alessandro","l":"Ferrero","r":"C","label":"Ferrero"},{"n":"7","f":"Damiano","l":"Giuriati","r":"P","label":"Giuriati"},{"n":"8","f":"Luca","l":"Sartoretti","r":"S","label":"Sartoretti"},{"n":"9","f":"Samuele","l":"Odorici","r":"S","label":"Odorici"},{"n":"10","f":"Filippo","l":"Anceschi","r":"L","label":"Anceschi"},{"n":"11","f":"Niccolò Antonio","l":"Depalma","r":"P","label":"Depalma"},{"n":"12","f":"Samuel","l":"Onwuelo","r":"O","label":"Onwuelo"},{"n":"14","f":"Antonio","l":"Macchiarulo","r":"L","label":"Macchiarulo"},{"n":"15","f":"Jacopo","l":"Ferrari","r":"C","label":"Ferrari"},{"n":"18","f":"Lorenzo","l":"Dieci","r":"S","label":"Dieci"},{"n":"19","f":"Stefano","l":"Fantoni","r":"O","label":"Fantoni"},{"n":"23","f":"Lorenzo","l":"Orlando","r":"C","label":"Orlando"}],"girone":"Bianco"},{"id":"monge-gerbaudo-savigliano","gender":"M","league":"A3","name":"Monge Gerbaudo Savigliano","players":[{"n":"1","f":"Alberto","l":"Marra","r":"C","label":"Marra"},{"n":"3","f":"Ambrogio","l":"Quaranta","r":"C","label":"A. Quaranta"},{"n":"4","f":"Luca","l":"Martina","r":"L","label":"Martina"},{"n":"5","f":"Giordano","l":"Mattera","r":"P","label":"Mattera"},{"n":"7","f":"Carlo","l":"Ballari","r":"O","label":"Ballari"},{"n":"8","f":"Lorenzo","l":"Rainero","r":"C","label":"Rainero"},{"n":"9","f":"Andrea","l":"Marassi","r":"L","label":"Marassi"},{"n":"10","f":"Gabriel","l":"Marini Da Costa","r":"S","label":"Marini Da Costa"},{"n":"12","f":"Daniele","l":"Carpita","r":"S","label":"Carpita"},{"n":"14","f":"Marco","l":"Spagnol","r":"O","label":"Spagnol"},{"n":"15","f":"Edoardo","l":"Cunial","r":"S","label":"Cunial"},{"n":"18","f":"Matteo","l":"Pistolesi","r":"P","label":"Pistolesi"},{"n":"24","f":"Giovanni","l":"Bellanti","r":"S","label":"Bellanti"},{"n":"40","f":"Luca","l":"Quaranta","r":"P","label":"L. Quaranta"}],"girone":"Bianco"},{"id":"negrini-cte-acqui-terme","gender":"M","league":"A3","name":"Negrini CTE Acqui Terme","players":[{"n":"1","f":"Daniele","l":"Volpara","r":"L","label":"Volpara"},{"n":"2","f":"Lorenzo","l":"Bertozzi","r":"S","label":"Bertozzi"},{"n":"5","f":"Filippo","l":"Trombin","r":"L","label":"Trombin"},{"n":"6","f":"Andrea","l":"Malavasi","r":"S","label":"Malavasi"},{"n":"7","f":"Francesco","l":"Dotta","r":"O","label":"Dotta"},{"n":"8","f":"Morgan","l":"Biasotto","r":"O","label":"Biasotto"},{"n":"9","f":"Luca","l":"Martinelli","r":"P","label":"Martinelli"},{"n":"10","f":"Simone","l":"Bertoncello","r":"S","label":"Bertoncello"},{"n":"11","f":"Gabriele","l":"Spina","r":"P","label":"Spina"},{"n":"12","f":"Michele","l":"Luisetto","r":"C","label":"Luisetto"},{"n":"14","f":"Davide","l":"Esposito","r":"C","label":"Esposito"},{"n":"15","f":"Gabriele","l":"Gatti","r":"S","label":"Gatti"},{"n":"16","f":"Alberto","l":"Massari","r":"C","label":"Massari"},{"n":"41","f":"Nilo","l":"Cometti","r":"C","label":"Cometti"}],"girone":"Bianco"},{"id":"personal-time-san-dona-di-piave","gender":"M","league":"A3","name":"Personal Time San Donà di Piave","players":[{"n":"1","f":"Alberto","l":"Cavasin","r":"O","label":"Cavasin"},{"n":"2","f":"Davide","l":"Signorini","r":"S","label":"Signorini"},{"n":"3","f":"Nicolò","l":"Grespan","r":"P","label":"Grespan"},{"n":"4","f":"Simone","l":"Mondin","r":"L","label":"Mondin"},{"n":"5","f":"Leonardo","l":"Schianchi","r":"S","label":"Schianchi"},{"n":"6","f":"Lorenzo","l":"Penta","r":"O","label":"Penta"},{"n":"8","f":"Dago Alessandro","l":"Lazzarini","r":"C","label":"Lazzarini"},{"n":"9","f":"Manuel","l":"Zilio","r":"C","label":"Zilio"},{"n":"10","f":"Giuseppe","l":"Bellanova","r":"P","label":"Bellanova"},{"n":"11","f":"Filippo","l":"Garra","r":"S","label":"Garra"},{"n":"12","f":"Alessandro","l":"Piva","r":"C","label":"Piva"},{"n":"13","f":"Manuel","l":"Marzorati","r":"C","label":"Marzorati"},{"n":"16","f":"Alessandro","l":"Moro","r":"L","label":"Moro"},{"n":"18","f":"Lorenzo","l":"Puntar","r":"S","label":"Puntar"}],"girone":"Bianco"},{"id":"sarlux-sarroch","gender":"M","league":"A3","name":"Sarlux Sarroch","players":[{"n":"1","f":"Francesco","l":"Guastamacchia","r":"C","label":"Guastamacchia"},{"n":"2","f":"Fabio","l":"Curridori","r":"P","label":"Curridori"},{"n":"4","f":"Andrea","l":"Leccis","r":"C","label":"Leccis"},{"n":"5","f":"Enrico","l":"Guarienti Zappoli","r":"S","label":"Guarienti Zappoli"},{"n":"6","f":"Ivan","l":"Grussu","r":"S","label":"Grussu"},{"n":"7","f":"Gioele","l":"Favaro","r":"S","label":"Favaro"},{"n":"8","f":"Simone","l":"Mocci","r":"L","label":"Mocci"},{"n":"9","f":"Francesco","l":"Giaffreda","r":"L","label":"Giaffreda"},{"n":"10","f":"Giacomo","l":"Selleri","r":"P","label":"Selleri"},{"n":"11","f":"Andrea","l":"Schiro","r":"S","label":"Schiro"},{"n":"12","f":"Alberto","l":"Saibene","r":"S","label":"Saibene"},{"n":"14","f":"Riccardo","l":"Romoli","r":"O","label":"Romoli"},{"n":"15","f":"Marinfranco","l":"Agrusti","r":"C","label":"Agrusti"},{"n":"17","f":"Gabriele","l":"Pisu","r":"C","label":"Pisu"}],"girone":"Bianco"},{"id":"sav-trebaseleghe","gender":"M","league":"A3","name":"SAV Trebaseleghe","players":[{"n":"1","f":"Giovanni","l":"Candeago","r":"S","label":"Candeago"},{"n":"2","f":"Massimo","l":"Barosco","r":"O","label":"Barosco"},{"n":"3","f":"Mattia","l":"Furlan","r":"C","label":"Furlan"},{"n":"4","f":"Francesco","l":"Munarin","r":"C","label":"Munarin"},{"n":"6","f":"Francesco","l":"Giannini","r":"L","label":"Giannini"},{"n":"7","f":"Enrico","l":"Pilotto","r":"C","label":"Pilotto"},{"n":"8","f":"Emanuele","l":"Rampazzo","r":"P","label":"Rampazzo"},{"n":"9","f":"Nicola","l":"Guastamacchia","r":"S","label":"Guastamacchia"},{"n":"10","f":"Mattia","l":"Amarilli","r":"L","label":"Amarilli"},{"n":"14","f":"Riccardo","l":"Florian","r":"C","label":"Florian"},{"n":"15","f":"Alessandro","l":"Alimenti","r":"S","label":"Alimenti"},{"n":"17","f":"Edoardo","l":"Mentasti","r":"S","label":"Mentasti"},{"n":"23","f":"Francesco","l":"Quagliozzi","r":"O","label":"Quagliozzi"},{"n":"24","f":"Matteo","l":"Rebegea","r":"P","label":"Rebegea"}],"girone":"Bianco"},{"id":"aurispa-dfv-capo-di-leuca","gender":"M","league":"A3","name":"Aurispa DFV Capo Di Leuca","players":[{"n":"1","f":"Tiziano","l":"Mazzone","r":"S","label":"Mazzone"},{"n":"3","f":"Gabriel","l":"Galiano","r":"C","label":"Galiano"},{"n":"5","f":"Filippo","l":"Marsella","r":"P","label":"Marsella"},{"n":"6","f":"Stefano","l":"Giannotti","r":"O","label":"Giannotti"},{"n":"7","f":"Pedro Luiz","l":"Putini","r":"P","label":"Putini"},{"n":"8","f":"Leonardo","l":"Chiella","r":"L","label":"Chiella"},{"n":"10","f":"Alessandro","l":"Vicentini","r":"O","label":"Vicentini"},{"n":"11","f":"Nicholas","l":"Petratti","r":"S","label":"Petratti"},{"n":"12","f":"Raffaele","l":"Colaci","r":"S","label":"Colaci"},{"n":"17","f":"Jan","l":"Feri","r":"S","label":"Feri"},{"n":"19","f":"Daniele","l":"Mellano","r":"C","label":"Mellano"},{"n":"23","f":"Gioele Adeola","l":"Taiwo","r":"C","label":"Taiwo"},{"n":"29","f":"Luigi","l":"Corciulo","r":"L","label":"Corciulo"}],"girone":"Blu"},{"id":"avimec-modica","gender":"M","league":"A3","name":"Avimec Modica","players":[{"n":"1","f":"Jannis Tom","l":"Hopt","r":"O","label":"Hopt"},{"n":"3","f":"Biagio Ottaviano","l":"Pappalardo","r":"L","label":"Pappalardo"},{"n":"4","f":"Giacomo","l":"Piovan","r":"P","label":"Piovan"},{"n":"5","f":"Giacomo","l":"Russo","r":"C","label":"Russo"},{"n":"6","f":"Marco Rocco","l":"Panciocco","r":"S","label":"Panciocco"},{"n":"7","f":"Stefano","l":"Chillemi","r":"S","label":"Chillemi"},{"n":"8","f":"Vincenzo","l":"Nastasi","r":"L","label":"Nastasi"},{"n":"9","f":"Jacopo","l":"Biffi","r":"P","label":"Biffi"},{"n":"10","f":"Alessandro","l":"Graziani","r":"S","label":"Graziani"},{"n":"12","f":"Robert","l":"Lazar","r":"S","label":"Lazar"},{"n":"13","f":"Lorenzo","l":"Caciagli","r":"C","label":"Caciagli"},{"n":"14","f":"Leonardo","l":"Molesti","r":"O","label":"Molesti"},{"n":"15","f":"Fabrizio","l":"Garofolo","r":"C","label":"Garofolo"},{"n":"23","f":"Paolo","l":"Macca","r":"C","label":"Macca"}],"girone":"Blu"},{"id":"bcc-tecbus-castellana-grotte","gender":"M","league":"A3","name":"BCC Tecbus Castellana Grotte","players":[{"n":"2","f":"Matteo","l":"Picchi","r":"P","label":"Picchi"},{"n":"3","f":"Romolo","l":"Mariano","r":"S","label":"Mariano"},{"n":"5","f":"Gabriele","l":"Mariani","r":"P","label":"Mariani"},{"n":"7","f":"Nicolas","l":"Brucini","r":"S","label":"Brucini"},{"n":"8","f":"Alessio","l":"Matteini","r":"S","label":"Matteini"},{"n":"10","f":"Andrea","l":"Innocenzi","r":"C","label":"Innocenzi"},{"n":"11","f":"Nicola","l":"Zara","r":"C","label":"Zara"},{"n":"13","f":"Diego","l":"Guglielmi","r":"L","label":"Guglielmi"},{"n":"14","f":"Andrea","l":"Orlando Boscardini","r":"C","label":"Orlando Boscardini"},{"n":"16","f":"Lorenzo Antonio","l":"Basso","r":"L","label":"Basso"},{"n":"17","f":"Nicolò","l":"Casaro","r":"O","label":"Casaro"},{"n":"18","f":"Gianmarco","l":"Barretta","r":"O","label":"Barretta"},{"n":"19","f":"Jacopo","l":"Giannasi","r":"S","label":"Giannasi"}],"girone":"Blu"},{"id":"corigliano-volley","gender":"M","league":"A3","name":"Corigliano Volley","players":[{"n":"1","f":"Simone","l":"Iurlaro","r":"S","label":"Iurlaro"},{"n":"2","f":"Lorenzo","l":"Pasquali","r":"C","label":"Pasquali"},{"n":"3","f":"Andrea","l":"Tanzi","r":"C","label":"Tanzi"},{"n":"4","f":"Simone","l":"Napolitano","r":"C","label":"Napolitano"},{"n":"5","f":"Gianluca","l":"Cremoni","r":"S","label":"Cremoni"},{"n":"6","f":"Tommaso","l":"Larizza","r":"P","label":"Larizza"},{"n":"7","f":"Gianmarco","l":"Graziani","r":"L","label":"Graziani"},{"n":"8","f":"Leonardo","l":"Carta","r":"S","label":"Carta"},{"n":"9","f":"Johan Ragnar","l":"Gruvaeus","r":"O","label":"Gruvaeus"},{"n":"10","f":"Giancarlo","l":"Pesare","r":"L","label":"Pesare"},{"n":"16","f":"Salvatore","l":"Donzella","r":"P","label":"Donzella"},{"n":"18","f":"Giovanni","l":"Falcone","r":"O","label":"Falcone"},{"n":"35","f":"Giulio","l":"Parrini","r":"S","label":"Parrini"}],"girone":"Blu"},{"id":"energytime-campobasso","gender":"M","league":"A3","name":"EnergyTime Campobasso","players":[{"n":"1","f":"Luca","l":"Consonni","r":"L","label":"Consonni"},{"n":"2","f":"Kaloyan","l":"Valchinov","r":"S","label":"Valchinov"},{"n":"3","f":"Gianmarco","l":"Rescignano","r":"S","label":"Rescignano"},{"n":"4","f":"Alessandro","l":"Talevi","r":"S","label":"Talevi"},{"n":"5","f":"Filippo","l":"Facchi","r":"C","label":"Facchi"},{"n":"6","f":"Antonio","l":"Del Fra","r":"P","label":"Del Fra"},{"n":"7","f":"Marco","l":"Mondello","r":"O","label":"Mondello"},{"n":"11","f":"Fernando Gabriel","l":"Garnica","r":"P","label":"Garnica"},{"n":"12","f":"Vittorio","l":"Masone","r":"C","label":"Masone"},{"n":"13","f":"Alessandro","l":"Arienti","r":"C","label":"Arienti"},{"n":"16","f":"Francesco","l":"Guerrini","r":"S","label":"Guerrini"},{"n":"17","f":"Antonino","l":"Suraci","r":"O","label":"Suraci"},{"n":"18","f":"Francesco","l":"Fortes","r":"C","label":"Fortes"},{"n":"27","f":"Mario","l":"De Nigris","r":"L","label":"De Nigris"}],"girone":"Blu"},{"id":"green-volley-galatone","gender":"M","league":"A3","name":"Green Volley Galatone","players":[{"n":"1","f":"Riccardo","l":"Pinelli","r":"P","label":"Pinelli"},{"n":"2","f":"Ludovico","l":"Giuliani","r":"S","label":"Giuliani"},{"n":"3","f":"Alessandro","l":"Stufano","r":"C","label":"Stufano"},{"n":"4","f":"Gabriele","l":"De Micheli","r":"C","label":"De Micheli"},{"n":"8","f":"Claudio","l":"Borzacconi","r":"S","label":"Borzacconi"},{"n":"9","f":"Tommaso","l":"Motta","r":"O","label":"Motta"},{"n":"10","f":"Edwin","l":"Arguelles Sanchez","r":"O","label":"Arguelles Sanchez"},{"n":"13","f":"Francesco","l":"Prosperi Turri","r":"L","label":"Prosperi Turri"},{"n":"14","f":"Andrea","l":"Muscatello","r":"L","label":"Muscatello"},{"n":"15","f":"Federico","l":"Miraglia","r":"C","label":"Miraglia"},{"n":"17","f":"Diego","l":"Bartolini","r":"C","label":"Bartolini"},{"n":"19","f":"Davide","l":"Fiandaca","r":"P","label":"Fiandaca"},{"n":"37","f":"Dario","l":"Iannaccone","r":"S","label":"Iannaccone"},{"n":"99","f":"Felipe","l":"Benavidez","r":"S","label":"Benavidez"}],"girone":"Blu"},{"id":"pag-volley-taviano","gender":"M","league":"A3","name":"PAG Volley Taviano","players":[{"n":"1","f":"Stefano","l":"Pepe","r":"C","label":"Pepe"},{"n":"2","f":"Simone","l":"Rollo","r":"C","label":"Rollo"},{"n":"6","f":"Pietro Luca","l":"Latorre","r":"P","label":"Latorre"},{"n":"7","f":"Ferdinando","l":"Lentini","r":"S","label":"Lentini"},{"n":"9","f":"Simone","l":"Baldari","r":"S","label":"Baldari"},{"n":"10","f":"Andrea","l":"Malinconico","r":"L","label":"Malinconico"},{"n":"11","f":"Mattia","l":"Mingolla","r":"P","label":"Mingolla"},{"n":"12","f":"Alessandro","l":"Papa","r":"C","label":"Papa"},{"n":"15","f":"Paolo","l":"Battaglia","r":"O","label":"Battaglia"},{"n":"16","f":"Matteo","l":"Di Giulio","r":"L","label":"Di Giulio"},{"n":"17","f":"Aleksi","l":"Muukkonen","r":"S","label":"Muukkonen"},{"n":"18","f":"Giacomo","l":"Mastracci","r":"S","label":"Mastracci"},{"n":"21","f":"Enrico","l":"Cester","r":"C","label":"Cester"},{"n":"23","f":"Williams","l":"Padura Diaz","r":"O","label":"Padura Diaz"}],"girone":"Blu"},{"id":"plus-volleyball-sabaudia","gender":"M","league":"A3","name":"Plus Volleyball Sabaudia","players":[{"n":"1","f":"Stefano","l":"Schettino","r":"P","label":"Schettino"},{"n":"2","f":"Leonardo","l":"Rocca","r":"O","label":"Rocca"},{"n":"4","f":"Carmelo","l":"Gitto","r":"C","label":"Gitto"},{"n":"5","f":"Pietro","l":"Carrera","r":"S","label":"Carrera"},{"n":"6","f":"Dario","l":"Catinelli","r":"P","label":"Catinelli"},{"n":"10","f":"Alessandro","l":"Serangeli","r":"O","label":"Serangeli"},{"n":"11","f":"Simone","l":"Orto","r":"S","label":"Orto"},{"n":"14","f":"Filippo","l":"Guerriero","r":"P","label":"Guerriero"},{"n":"15","f":"Andrea","l":"Rondoni","r":"L","label":"Rondoni"},{"n":"16","f":"Balint","l":"Kecskemeti","r":"S","label":"Kecskemeti"},{"n":"18","f":"Armando","l":"De Vito","r":"C","label":"De Vito"},{"n":"22","f":"Armando","l":"Carotti","r":"C","label":"Carotti"},{"n":"29","f":"Louis","l":"Caccioppola","r":"L","label":"Caccioppola"}],"girone":"Blu"},{"id":"romeo-sorrento","gender":"M","league":"A3","name":"Romeo Sorrento","players":[{"n":"1","f":"Davide","l":"Brignach","r":"O","label":"Brignach"},{"n":"2","f":"Michele","l":"Ciampa","r":"O","label":"Ciampa"},{"n":"3","f":"Pietro","l":"Galdenzi","r":"C","label":"Galdenzi"},{"n":"4","f":"Giovanni","l":"Gragnaniello","r":"C","label":"Gragnaniello"},{"n":"5","f":"Riccardo","l":"Alaia","r":"S","label":"Alaia"},{"n":"7","f":"Paul","l":"Ferenciac","r":"S","label":"Ferenciac"},{"n":"8","f":"Stefano","l":"Patriarca","r":"C","label":"Patriarca"},{"n":"9","f":"Andrea","l":"Garrone","r":"P","label":"Garrone"},{"n":"10","f":"Paolo","l":"Pontecorvo","r":"L","label":"Pontecorvo"},{"n":"11","f":"Mattia Nicola","l":"Farcasiu","r":"L","label":"Farcasiu"},{"n":"12","f":"Michal","l":"Petras","r":"S","label":"Petras"},{"n":"15","f":"Leonardo","l":"Ferrato","r":"P","label":"Ferrato"},{"n":"25","f":"Pietro","l":"Merlo","r":"S","label":"Merlo"}],"girone":"Blu"},{"id":"terni-volley-academy","gender":"M","league":"A3","name":"Terni Volley Academy","players":[{"n":"1","f":"Leonardo","l":"Canenti","r":"L","label":"Canenti"},{"n":"3","f":"Alessandro","l":"Crocoli","r":"S","label":"Crocoli"},{"n":"4","f":"Alessandro","l":"Finauri","r":"S","label":"Finauri"},{"n":"5","f":"Pier Paolo","l":"Partenio","r":"P","label":"Partenio"},{"n":"6","f":"Simone","l":"Oberto","r":"L","label":"Oberto"},{"n":"7","f":"Antonio","l":"Picardo","r":"C","label":"Picardo"},{"n":"8","f":"Andrea","l":"Santangelo","r":"O","label":"Santangelo"},{"n":"10","f":"Gabriele","l":"Arcadi","r":"C","label":"Arcadi"},{"n":"11","f":"Michele","l":"Severini","r":"C","label":"Severini"},{"n":"13","f":"Umberto","l":"Caporossi","r":"S","label":"Caporossi"},{"n":"17","f":"Massimiliano","l":"Matani","r":"C","label":"Matani"},{"n":"18","f":"Luciano","l":"Zornetta","r":"S","label":"Zornetta"},{"n":"19","f":"Roberto","l":"Paounov","r":"O","label":"Paounov"},{"n":"21","f":"Marco","l":"Stambuco","r":"P","label":"Stambuco"}],"girone":"Blu"},{"id":"tonno-callipo-vibo-valentia","gender":"M","league":"A3","name":"Tonno Callipo Vibo Valentia","players":[{"n":"2","f":"Paolo","l":"Ajazi","r":"S","label":"Ajazi"},{"n":"5","f":"Michael","l":"Buttarini","r":"L","label":"Buttarini"},{"n":"7","f":"Ivan","l":"Borgesi","r":"C","label":"Borgesi"},{"n":"8","f":"Graziano","l":"Maccarone","r":"C","label":"Maccarone"},{"n":"9","f":"Patrik","l":"Lamanec","r":"O","label":"Lamanec"},{"n":"11","f":"Riccardo Nicolò","l":"Smeraldo","r":"P","label":"Smeraldo"},{"n":"12","f":"Francesco","l":"Commisso","r":"C","label":"Commisso"},{"n":"15","f":"Michele","l":"Starace","r":"S","label":"Starace"},{"n":"18","f":"Nicola","l":"Mussari","r":"P","label":"Mussari"},{"n":"19","f":"Abdelhalim","l":"Kanar","r":"C","label":"Kanar"},{"n":"23","f":"Samuele","l":"Riga","r":"O","label":"Riga"},{"n":"27","f":"Luca","l":"Paglialunga","r":"S","label":"Paglialunga"},{"n":"29","f":"Alessandro","l":"Pisoni","r":"L","label":"Pisoni"},{"n":"96","f":"Hristo","l":"Hristov","r":"S","label":"Hristov"}],"girone":"Blu"}]}/*END*/;
+  var CLUB = {};
+  LEGA.clubs.forEach(function (c) { CLUB[c.id] = c; });
+
+  function defaultTeam() {
+    return DEFAULT_ROLES.map(function (r) { return { role: r, name: "", num: "" }; });
+  }
+  var state = { my: defaultTeam(), opp: defaultTeam(), myRot: 5, oppRot: 4, serve: "me", oppStart: 6, clubMy: "omag-consolini-volley-1907", clubOpp: "" };
+  var ui = { tab: "play", sel: null, history: [] };
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      var d = JSON.parse(raw);
+      ["my", "opp"].forEach(function (t) {
+        if (Array.isArray(d[t]) && d[t].length === 6) {
+          state[t] = d[t].map(function (p, i) {
+            return { role: DEFAULT_ROLES[i], name: String(p.name || ""), num: String(p.num || "") };
+          });
+        }
+      });
+      if (d.myRot >= 1 && d.myRot <= 6) state.myRot = d.myRot;
+      if (d.oppRot >= 1 && d.oppRot <= 6) state.oppRot = d.oppRot;
+      if (d.serve === "me" || d.serve === "opp") state.serve = d.serve;
+      if (d.oppStart >= 1 && d.oppStart <= 6) state.oppStart = d.oppStart;
+      if (typeof d.clubMy === "string" && (d.clubMy === "" || CLUB[d.clubMy])) state.clubMy = d.clubMy;
+      if (typeof d.clubOpp === "string" && (d.clubOpp === "" || CLUB[d.clubOpp])) state.clubOpp = d.clubOpp;
+    } catch (e) {}
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function lineup(team, n) {
+    var k = CYC.indexOf(n), out = {};
+    for (var i = 0; i < 6; i++) {
+      var np = CYC[(CYC.indexOf(i + 1) + k) % 6];
+      out[np] = team[i];
+    }
+    return out;
+  }
+  function nextRot(n) { return CYC[(CYC.indexOf(n) + 1) % 6]; }
+  function shown(p) { return p.name.trim() || p.role; }
+  function zl(p, pos) { return (p.role === "P" ? "P" : "Z") + pos; }
+  function hitters(lu) {
+    var c = 0;
+    [2, 3, 4].forEach(function (pos) { if (lu[pos].role !== "P") c++; });
+    return c;
+  }
+  function anyNames() {
+    return state.my.concat(state.opp).some(function (p) { return p.name.trim(); });
+  }
+
+  /* ---------- play view ---------- */
+  function segButtons(el, items, current, attr) {
+    el.innerHTML = items.map(function (it) {
+      return '<button type="button" data-' + attr + '="' + it.v + '" aria-pressed="' + (it.v === current) + '">' + it.t + "</button>";
+    }).join("");
+  }
+
+  function cellHTML(team, pos, p, isServer, serving) {
+    var cls = "cell " + (team === "my" ? "us" : "them") + (p.role === "P" ? " setter" : "");
+    if (ui.sel) {
+      var selPos = ui.sel.pos, selSide = ui.sel.side;
+      if (selSide === team && selPos === pos) cls += " sel";
+      else if (selSide !== team && FACE[selPos] === pos) cls += " vs";
+    }
+    var named = p.name.trim();
+    var meta = named ? p.role : "";
+    if (p.num.trim()) meta += (meta ? " · " : "") + "n° " + esc(p.num.trim());
+    return '<button type="button" class="' + cls + '" data-cell="' + team + ":" + pos + '">' +
+      '<span class="pos"><span>' + zl(p, pos) + '</span>' + (isServer && serving ? '<span class="badge">Batte</span>' : "") + "</span>" +
+      '<span class="name">' + esc(shown(p)) + "</span>" +
+      '<span class="meta">' + (meta || "&nbsp;") + "</span></button>";
+  }
+
+  function renderBoard() {
+    var my = lineup(state.my, state.myRot), op = lineup(state.opp, state.oppRot);
+    var meServes = state.serve === "me";
+    function row(team, lu, order) {
+      var serving = team === "my" ? meServes : !meServes;
+      return '<div class="row">' + order.map(function (pos) {
+        return cellHTML(team, pos, lu[pos], pos === 1, serving);
+      }).join("") + "</div>";
+    }
+    var oppHead = '<div class="halfhead them"><span>Loro · P' + state.oppRot + (meServes ? " in ricezione" : " in battuta") + '</span><span class="sub">' + hitters(op) + " attaccanti in prima linea</span></div>";
+    var myHead = '<div class="halfhead us"><span>Noi · P' + state.myRot + (meServes ? " in battuta" : " in ricezione") + '</span><span class="sub">' + hitters(my) + " attaccanti in prima linea</span></div>";
+    document.getElementById("board").innerHTML =
+      '<div class="half">' + oppHead + row("opp", op, [1, 6, 5]) + row("opp", op, [2, 3, 4]) + "</div>" +
+      '<div class="net">RETE</div>' +
+      '<div class="half">' + row("my", my, [4, 3, 2]) + row("my", my, [5, 6, 1]) + myHead + "</div>";
+  }
+
+  function renderHead() {
+    var meServes = state.serve === "me";
+    document.getElementById("headline").innerHTML =
+      '<span class="us">Noi P' + state.myRot + "</span> " +
+      '<span class="mid">' + (meServes ? "in battuta" : "in ricezione") + "</span> contro " +
+      '<span class="them">Loro P' + state.oppRot + "</span> " +
+      '<span class="mid">' + (meServes ? "in ricezione" : "in battuta") + "</span>";
+    segButtons(document.getElementById("seg-serve"), [{ v: "me", t: "Battiamo noi" }, { v: "opp", t: "Battono loro" }], state.serve, "serve");
+    var nums = [1, 2, 3, 4, 5, 6].map(function (n) { return { v: n, t: "P" + n }; });
+    segButtons(document.getElementById("seg-us"), nums, state.myRot, "us");
+    segButtons(document.getElementById("seg-them"), nums, state.oppRot, "them");
+    document.getElementById("note-us").textContent = "palleggio in posizione " + state.myRot;
+    document.getElementById("note-them").textContent = "palleggio in posizione " + state.oppRot;
+    document.getElementById("hint").hidden = anyNames();
+  }
+
+  function renderPairs() {
+    var my = lineup(state.my, state.myRot), op = lineup(state.opp, state.oppRot);
+    function pair(pos) {
+      var a = my[pos], b = op[FACE[pos]];
+      var on = ui.sel && ((ui.sel.side === "my" && ui.sel.pos === pos) || (ui.sel.side === "opp" && FACE[ui.sel.pos] === pos));
+      return '<button type="button" class="pair' + (on ? " on" : "") + '" data-pair="' + pos + '">' +
+        '<span class="p l"><span class="pn">' + esc(shown(a)) + '</span><span class="pp">' + zl(a, pos) + (a.role === "P" ? " · palleggio" : "") + "</span></span>" +
+        '<span class="x">vs</span>' +
+        '<span class="p r"><span class="pn">' + esc(shown(b)) + '</span><span class="pp">' + zl(b, FACE[pos]) + (b.role === "P" ? " · palleggio" : "") + "</span></span></button>";
+    }
+    document.getElementById("pairs").innerHTML =
+      '<p class="lab">Prima linea (muro contro attacco)</p><div class="pairs">' + [4, 3, 2].map(pair).join("") + "</div>" +
+      '<p class="lab" style="margin-top:10px">Seconda linea</p><div class="pairs">' + [5, 6, 1].map(pair).join("") + "</div>";
+  }
+
+  function nextText(kind) {
+    var meServes = state.serve === "me";
+    if (kind === "us") {
+      if (meServes) return "Restiamo in battuta: P" + state.myRot + " contro P" + state.oppRot + ".";
+      return "Side-out: ruotiamo a P" + nextRot(state.myRot) + " e battiamo. Loro restano P" + state.oppRot + " in ricezione.";
+    }
+    if (meServes) return "Side-out: loro ruotano a P" + nextRot(state.oppRot) + " e battono. Noi restiamo P" + state.myRot + " in ricezione.";
+    return "Restano in battuta: loro P" + state.oppRot + " contro noi P" + state.myRot + ".";
+  }
+  function renderNexts() {
+    document.getElementById("nexts").innerHTML =
+      '<button type="button" class="next us" data-point="us"><strong>Punto nostro</strong><span>' + nextText("us") + "</span></button>" +
+      '<button type="button" class="next them" data-point="them"><strong>Punto loro</strong><span>' + nextText("them") + "</span></button>";
+    document.getElementById("undo").disabled = ui.history.length === 0;
+  }
+  function applyPoint(who) {
+    ui.history.push({ myRot: state.myRot, oppRot: state.oppRot, serve: state.serve });
+    if (who === "us" && state.serve === "opp") { state.myRot = nextRot(state.myRot); state.serve = "me"; }
+    else if (who === "them" && state.serve === "me") { state.oppRot = nextRot(state.oppRot); state.serve = "opp"; }
+    ui.sel = null;
+    save();
+    renderAll();
+  }
+
+  function renderSlip() {
+    var my = lineup(state.my, state.myRot);
+    document.getElementById("slip-lab").textContent = "Noi P" + state.myRot + " · da scrivere nell'ordine I–VI";
+    document.getElementById("slip").innerHTML = [1, 2, 3, 4, 5, 6].map(function (pos) {
+      var p = my[pos];
+      var extra = [];
+      if (p.num.trim()) extra.push("n° " + esc(p.num.trim()));
+      if (pos === 1) extra.push("al servizio");
+      return '<li><span class="rn">' + ROMAN[pos - 1] + '</span><span class="sn">' + esc(shown(p)) + '</span><span class="sm">' + extra.join(" · ") + "</span></li>";
+    }).join("");
+  }
+
+  /* Dove devo partire: ogni cambio palla fa ruotare chi conquista la battuta. Le battute si alternano,
+     quindi quando batte una squadra i cambi palla delle due squadre differiscono al massimo di uno. */
+  function startCalc() {
+    var a = state.myRot, b = state.oppRot;
+    var ko = (CYC.indexOf(b) - CYC.indexOf(state.oppStart) + 6) % 6;
+    var oppServes = state.serve === "opp";
+    function back(k) { return CYC[(CYC.indexOf(a) - (k % 6) + 6) % 6]; }
+    var koB = ko;
+    if (oppServes && koB === 0) koB = 6;
+    var kmA = oppServes ? ko : ko + 1;
+    var kmB = oppServes ? koB - 1 : koB;
+    return [
+      { label: "Se battono loro per primi", start: back(kmA), km: kmA, ko: ko },
+      { label: "Se battiamo noi per primi", start: back(kmB), km: kmB, ko: koB }
+    ];
+  }
+  function cambi(k) { return k + (k === 1 ? " cambio palla" : " cambi palla"); }
+  function renderStart() {
+    var meServes = state.serve === "me";
+    document.getElementById("start-goal").innerHTML =
+      'Incastro scelto in alto: <span class="us">noi P' + state.myRot + (meServes ? " in battuta" : " in ricezione") + '</span> contro <span class="them">loro P' + state.oppRot + (meServes ? " in ricezione" : " in battuta") + "</span>.";
+    segButtons(document.getElementById("seg-start"), [1, 2, 3, 4, 5, 6].map(function (n) { return { v: n, t: "P" + n }; }), state.oppStart, "ostart");
+    document.getElementById("start-res").innerHTML = startCalc().map(function (r) {
+      var how = r.km === 0 && r.ko === 0 ? "è già la partenza" : "dopo " + cambi(r.km) + " nostri e " + cambi(r.ko) + " loro";
+      return '<div class="res"><span class="when">' + r.label + '</span><strong>Parti in P' + r.start + '</strong><span class="how">' + how + "</span></div>";
+    }).join("");
+  }
+
+  function renderAll() {
+    /* blocca altezza e scroll durante il ridisegno, così la pagina non salta */
+    var de = document.documentElement, y = window.pageYOffset || de.scrollTop || 0;
+    var h = Math.max(de.scrollHeight, document.body.scrollHeight);
+    if (!document.body.style.minHeight) { document.body.style.minHeight = h + "px"; setTimeout(function () { document.body.style.minHeight = ""; }, 350); }
+    renderHead(); renderBoard(); renderPairs(); renderNexts(); renderSlip(); renderStart();
+    window.scrollTo(0, y);
+    requestAnimationFrame(function () { window.scrollTo(0, y); });
+  }
+
+  /* ---------- roster view ---------- */
+  function clubOptions(sel) {
+    var out = '<option value="">Nessun club (nomi liberi)</option>';
+    CLUB_GROUPS.forEach(function (grp) {
+      var list = LEGA.clubs.filter(function (c) {
+        return c.gender === grp.g && c.league === grp.l && (!grp.gir || c.girone === grp.gir);
+      });
+      if (!list.length) return;
+      out += '<optgroup label="' + grp.label + '">';
+      list.forEach(function (c) {
+        out += '<option value="' + c.id + '"' + (c.id === sel ? " selected" : "") + ">" + esc(c.name) + "</option>";
+      });
+      out += "</optgroup>";
+    });
+    return out;
+  }
+  function pickOptions(club, slotRole) {
+    var first = GROUP_OF[slotRole];
+    var names = GROUP_NAMES[club.gender];
+    var order = [first].concat(["P", "S", "C", "O", "L"].filter(function (g) { return g !== first; }));
+    var out = '<option value="">Rosa</option>';
+    order.forEach(function (g) {
+      var items = [];
+      club.players.forEach(function (pl, idx) {
+        if (pl.r === g) items.push('<option value="' + idx + '">' + esc(pl.f + " " + pl.l) + " · " + esc(pl.n) + "</option>");
+      });
+      if (items.length) out += '<optgroup label="' + names[g] + '">' + items.join("") + "</optgroup>";
+    });
+    return out;
+  }
+
+  function buildRosters() {
+    function team(key, title, cls, clubKey) {
+      var club = CLUB[state[clubKey]] || null;
+      var rows = state[key].map(function (p, i) {
+        var zone = i === 0 ? "P1" : "Z" + (i + 1);
+        return '<div class="rrow"><span class="bp"><b>' + zone + "</b><i>" + p.role + "</i></span>" +
+          '<input class="nm" id="' + key + '-name-' + i + '" type="text" data-team="' + key + '" data-i="' + i + '" data-f="name" placeholder="Nome" autocomplete="off" value="' + esc(p.name) + '" aria-label="Nome in ' + zone + '">' +
+          '<input class="num" id="' + key + '-num-' + i + '" type="text" inputmode="numeric" maxlength="3" data-team="' + key + '" data-i="' + i + '" data-f="num" placeholder="N°" autocomplete="off" value="' + esc(p.num) + '" aria-label="Numero di maglia in ' + zone + '">' +
+          (club ? '<select class="pick" id="' + key + '-pick-' + i + '" data-team="' + key + '" data-i="' + i + '" aria-label="Scegli dalla rosa per ' + zone + '">' + pickOptions(club, p.role) + "</select>" : "") +
+          "</div>";
+      }).join("");
+      var clubBox = '<div class="clubbox"><label for="' + clubKey + '-club">Club della Lega</label>' +
+        '<select id="' + clubKey + '-club" data-club="' + clubKey + '">' + clubOptions(state[clubKey]) + "</select></div>";
+      return '<div class="rteam panel ' + cls + (club ? " withpick" : "") + '"><h2>' + title + "</h2>" + clubBox + rows + "</div>";
+    }
+    document.getElementById("rosters").innerHTML =
+      '<p class="intro">Scegli il club e, per ogni posizione, chi gioca dal menu Rosa, oppure scrivi il nome. L\'ordine è quello di campo con il palleggio in P1.</p>' +
+      team("my", "Noi", "us", "clubMy") + team("opp", "Loro", "them", "clubOpp") +
+      '<p class="intro src">Rose 2026/27 lette il ' + esc(LEGA.updated) + ': femminili dal sito della <a href="https://www.legavolleyfemminile.it/clubs/" target="_blank" rel="noopener">Lega Volley Femminile</a>, maschili dal sito della <a href="https://www.legavolley.it/" target="_blank" rel="noopener">Lega Pallavolo Serie A</a>.</p>';
+  }
+
+  /* ---------- events ---------- */
+  function setTab(t) {
+    ui.tab = t;
+    document.getElementById("view-play").hidden = t !== "play";
+    document.getElementById("view-roster").hidden = t !== "roster";
+    document.getElementById("tab-play").setAttribute("aria-pressed", String(t === "play"));
+    document.getElementById("tab-roster").setAttribute("aria-pressed", String(t === "roster"));
+    if (t === "play") renderAll();
+  }
+
+  /* pagina ferma: prima dei gestori tolgo il focus dal pulsante (che verrebbe ridisegnato),
+     blocco l'altezza e dopo rimetto lo scroll dov'era */
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest || !e.target.closest("button")) return;
+    var de = document.documentElement, y = window.pageYOffset || de.scrollTop || 0;
+    document.body.style.minHeight = Math.max(de.scrollHeight, document.body.scrollHeight) + "px";
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    var back = function () { if ((window.pageYOffset || de.scrollTop || 0) !== y) window.scrollTo(0, y); };
+    requestAnimationFrame(back);
+    setTimeout(back, 60);
+    setTimeout(function () { back(); document.body.style.minHeight = ""; }, 350);
+  }, true);
+
+  document.addEventListener("click", function (e) {
+    var el = e.target.closest("button");
+    if (!el) return;
+    var d = el.dataset;
+    if (d.tab) { setTab(d.tab); return; }
+    if (d.serve) { state.serve = d.serve; ui.sel = null; save(); renderAll(); return; }
+    if (d.us) { state.myRot = Number(d.us); ui.sel = null; save(); renderAll(); return; }
+    if (d.them) { state.oppRot = Number(d.them); ui.sel = null; save(); renderAll(); return; }
+    if (d.ostart) { state.oppStart = Number(d.ostart); save(); renderStart(); return; }
+    if (d.cell) {
+      var parts = d.cell.split(":"), side = parts[0], pos = Number(parts[1]);
+      ui.sel = ui.sel && ui.sel.side === side && ui.sel.pos === pos ? null : { side: side, pos: pos };
+      renderBoard(); renderPairs();
+      return;
+    }
+    if (d.pair) {
+      var pp = Number(d.pair);
+      ui.sel = ui.sel && ui.sel.side === "my" && ui.sel.pos === pp ? null : { side: "my", pos: pp };
+      renderBoard(); renderPairs();
+      return;
+    }
+    if (d.point) { applyPoint(d.point); return; }
+    if (el.id === "undo") {
+      var h = ui.history.pop();
+      if (h) { state.myRot = h.myRot; state.oppRot = h.oppRot; state.serve = h.serve; ui.sel = null; save(); renderAll(); }
+    }
+  });
+
+  function onField(e) {
+    var t = e.target;
+    if (!t.dataset) return;
+    if (t.dataset.club) {
+      if (e.type !== "change") return;
+      state[t.dataset.club] = t.value;
+      save();
+      buildRosters();
+      return;
+    }
+    if (!t.dataset.team) return;
+    var key = t.dataset.team, i = Number(t.dataset.i);
+    var p = state[key][i];
+    if (t.classList.contains("pick")) {
+      if (e.type !== "change" || t.value === "") return;
+      var club = CLUB[state[key === "my" ? "clubMy" : "clubOpp"]];
+      var pl = club && club.players[Number(t.value)];
+      if (pl) {
+        p.name = pl.label;
+        p.num = pl.n;
+        document.getElementById(key + "-name-" + i).value = p.name;
+        document.getElementById(key + "-num-" + i).value = p.num;
+        save();
+      }
+      t.value = "";
+      return;
+    }
+    var f = t.dataset.f;
+    if (!f) return;
+    p[f] = f === "num" ? t.value.replace(/[^0-9]/g, "") : t.value;
+    if (f === "num" && t.value !== p[f]) t.value = p[f];
+    save();
+  }
+  document.addEventListener("input", onField);
+  document.addEventListener("change", onField);
+
+  load();
+  buildRosters();
+  renderAll();
+})();
+</script>
+
+<script>if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+</body>
+</html>
