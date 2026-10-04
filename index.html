@@ -588,7 +588,11 @@ button { cursor: pointer; }
     if (!t.dataset) return;
     if (t.dataset.club) {
       if (e.type !== "change") return;
-      state[t.dataset.club] = t.value;
+      if (state[t.dataset.club] !== t.value) {
+        state[t.dataset.club] = t.value;
+        /* cambio squadra: azzero nomi e numeri di quella squadra */
+        state[t.dataset.club === "clubMy" ? "my" : "opp"] = defaultTeam();
+      }
       save();
       buildRosters();
       return;
