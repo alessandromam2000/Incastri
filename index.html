@@ -205,6 +205,28 @@ button { cursor: pointer; }
 </style>
 </head>
 <body>
+<div id="gate" style="position:fixed;inset:0;z-index:99999;background:#edf0f2;color:#14202b;display:none;align-items:center;justify-content:center;padding:24px;font-family:system-ui,-apple-system,sans-serif">
+<form id="gateform" style="max-width:360px;width:100%;display:flex;flex-direction:column;gap:14px;text-align:center">
+<h1 style="margin:0;font-size:28px">Incastri di partenza</h1>
+<p style="margin:0;color:#566674">Inserisci il tuo codice di accesso. Uso riservato, non inoltrare.</p>
+<input id="gatecode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX" style="font-size:26px;text-align:center;letter-spacing:.12em;padding:12px;border:2px solid #cdd6dd;border-radius:8px;background:#fff;color:#14202b;min-height:52px">
+<button type="submit" style="font-size:20px;font-weight:600;padding:12px;border:0;border-radius:8px;background:#1d4f91;color:#fff;min-height:52px">Entra</button>
+<p id="gateerr" style="margin:0;color:#b93d0a;min-height:1.4em"></p>
+</form></div>
+<script>(function(){
+var OK=["12mne1i95ci","9cjcght01k","16t82mvxv2o","jgk7opl2db","11cdt15u0xs","1ltvlsmffu3","1ck5zxo9yot","1z53en499c2","1xs7e47j5bx","rjqj9pp9jp","1rzekwqy701","47tiualxcx","qc66w85cu7"];
+function h(str,seed){seed=seed||7;var h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(var i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}
+h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return (4294967296*(2097151&h2)+(h1>>>0)).toString(36);}
+var K="incastri-accesso",g=document.getElementById("gate");
+function stored(){try{return localStorage.getItem(K);}catch(e){return null;}}
+function ok(x){return x&&OK.indexOf(x)>-1;}
+if(ok(stored())){return;}
+g.style.display="flex";
+document.getElementById("gateform").addEventListener("submit",function(e){e.preventDefault();
+var v=h(document.getElementById("gatecode").value.toUpperCase().replace(/[^A-Z0-9]/g,""));
+if(ok(v)){try{localStorage.setItem(K,v);}catch(x){}g.style.display="none";}
+else{document.getElementById("gateerr").textContent="Codice non valido";}});
+})();</script>
 
 
 <main class="app">
