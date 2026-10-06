@@ -202,6 +202,7 @@ button { cursor: pointer; }
 @media (prefers-reduced-motion: no-preference) {
   .cell, .pair, .seg button { transition: background-color .12s, border-color .12s; }
 }
+.credit { margin: 24px 0 8px; text-align: center; font-size: 13px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -211,6 +212,7 @@ button { cursor: pointer; }
 <p style="margin:0;color:#566674">Inserisci il tuo codice di accesso. Uso riservato, non inoltrare.</p>
 <input id="gatecode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX" style="font-size:26px;text-align:center;letter-spacing:.12em;padding:12px;border:2px solid #cdd6dd;border-radius:8px;background:#fff;color:#14202b;min-height:52px">
 <button type="submit" style="font-size:20px;font-weight:600;padding:12px;border:0;border-radius:8px;background:#1d4f91;color:#fff;min-height:52px">Entra</button>
+<p style="margin:0;font-size:13px;color:#566674">Creato da Alessandro Mamprin</p>
 <p id="gateerr" style="margin:0;color:#b93d0a;min-height:1.4em"></p>
 </form></div>
 <script>(function(){
@@ -297,6 +299,7 @@ else{document.getElementById("gateerr").textContent="Codice non valido";}});
   </section>
 </main>
 
+<p class="credit">Creato da Alessandro Mamprin</p>
 <script>
 (function () {
   var CYC = [1, 6, 5, 4, 3, 2];
