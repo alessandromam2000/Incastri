@@ -1,3 +1,4 @@
 Incastri di partenza - versione installabile (PWA)
 Caricare TUTTI i file di questa cartella nella radice di un sito gratuito (GitHub Pages, Netlify o Cloudflare Pages).
 Poi aprire l'indirizzo in Safari su iPad -> Condividi -> Aggiungi alla schermata Home.
+
